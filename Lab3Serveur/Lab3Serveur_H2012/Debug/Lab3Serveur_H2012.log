@@ -1,12 +1,20 @@
 ﻿  main.cpp
-c:\users\tristan\source\repos\lab4\lab3serveur\lab3serveur_h2012\main.cpp(192): warning C4018: '<': signed/unsigned mismatch
-c:\users\tristan\source\repos\lab4\lab3serveur\lab3serveur_h2012\main.cpp(228): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winsock2.h(2218): note: see declaration of 'gethostbyname'
-c:\users\tristan\source\repos\lab4\lab3serveur\lab3serveur_h2012\main.cpp(230): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winsock2.h(1848): note: see declaration of 'inet_ntoa'
-c:\users\tristan\source\repos\lab4\lab3serveur\lab3serveur_h2012\main.cpp(236): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winsock2.h(1830): note: see declaration of 'inet_addr'
-c:\users\tristan\source\repos\lab4\lab3serveur\lab3serveur_h2012\main.cpp(269): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winsock2.h(1848): note: see declaration of 'inet_ntoa'
-c:\users\tristan\source\repos\lab4\lab3serveur\lab3serveur_h2012\main.cpp(325): warning C4018: '<': signed/unsigned mismatch
-  Lab3Serveur_H2012.vcxproj -> C:\Users\Tristan\Source\Repos\lab4\Lab3Serveur\Debug\Lab3Serveur_A2012.exe
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(202): warning C4018: '<' : incompatibilité signed/unsigned
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(149): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: voir la déclaration de 'fopen'
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(238): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(2218): note: voir la déclaration de 'gethostbyname'
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(240): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1848): note: voir la déclaration de 'inet_ntoa'
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(246): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1830): note: voir la déclaration de 'inet_addr'
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(279): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1848): note: voir la déclaration de 'inet_ntoa'
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(303): warning C4101: 'outBuffer' : variable locale non référencée
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(378): warning C4018: '<' : incompatibilité signed/unsigned
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(428): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: voir la déclaration de 'fopen'
+c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(446): warning C4996: 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _strdup. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\string.h(538): note: voir la déclaration de 'strdup'
+  Lab3Serveur_H2012.vcxproj -> C:\TEMP\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.exe
+  Lab3Serveur_H2012.vcxproj -> C:\TEMP\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.pdb (Partial PDB)

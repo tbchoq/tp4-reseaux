@@ -1,10 +1,11 @@
 #undef UNICODE
 
 #include <winsock2.h>
+#include "rapidjson/filereadstream.h"
+#include <cstdio>
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-#include <rapidjson/filereadstream.h>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -27,6 +28,7 @@ extern bool checkPassword(char *src);
 extern void createNewUser(char *src);
 extern string obtenirMessages(int i);
 extern string ecrireMessage(char *src);
+extern const char *GetJsonText(Document doc);
 
 
 // List of Winsock error constants mapped to an interpretation string.
@@ -143,6 +145,25 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0
 int main(void) 
 {
 
+
+	FILE* fp = fopen("Data.json", "rb");
+	char buffer[65536];
+	FileReadStream is(fp, buffer, sizeof(buffer));
+	
+	const char text[] = "{\"users\": [{\"username\": \"username1\",\"password\" : \"password1\"},{\"username\": \"username2\",\"password\" : \"password2\"}]}";
+
+	Document doc;
+
+	if (doc.Parse(text).HasParseError())
+		return 1;
+	
+
+	std::cout << buffer << std::endl;
+	//std::cout << doc["User1"].GetString() << std::endl;
+
+
+	fclose(fp);
+
 	//----------------------
 	// Initialize Winsock.
 
@@ -167,12 +188,12 @@ int main(void)
 	setsockopt(ServerSocket, SOL_SOCKET, SO_REUSEADDR, option, sizeof(option));
 
 	string entreeIP = "";
-	while (entreeIP != "192.168.0.101")
+	while (entreeIP != "132.207.156.238")
 	{
-		printf("\nVeuillez entrer l'adresse IP du poste sur lequel le serveur sera execute (Poste present: 192.168.0.101) : ");
+		printf("\nVeuillez entrer l'adresse IP du poste sur lequel le serveur sera execute (Poste present: 132.207.156.238) : ");
 		cin >> entreeIP;
 		
-		if (entreeIP != "192.168.0.101")
+		if (entreeIP != "132.207.156.238")
 		{
 			printf("\nL'adresse IP est incorrecte. ");
 			if (entreeIP.size() != 16)
@@ -291,41 +312,43 @@ DWORD WINAPI EchoHandler(void* sd_)
 		cout << "Received " << readBuffer << " from client." << endl;
 
 		//Username sent
-		if (readBuffer[0] == '1')
+		if (readBuffer[0] == '1' && readBuffer[1] == '0')
 		{
 			if (checkUsername(readBuffer) == true)
 			{
+				//rajouter shit
 				str = "11StepPassword";
 			}
 			else
 			{
+				//autre shits / same shit cote client
 				str = "12NewUser";
 			}
 		}
 		//Password sent old user
 		else if (readBuffer[0] == '2')
 		{
+			//check new user (2 case)
 			if (checkPassword(readBuffer) == true)
 			{
 				str = "21StepPasswordRight";
+				//OK -> 31: 15 messages
+				//15e -> 32: unlock
 			}
 			else
 			{
-				str = "22StepPasswordWrong";
+				str = "20StepPasswordWrong";
 			}
 		}
-		//Password sent new user
-		else if (readBuffer[0] == '3')
-		{
-			createNewUser(readBuffer);
-		}
-		//Requete des 15 messages
-		else if (readBuffer[0] == '4')
+		//Doit envoyer
+		else if (readBuffer[0] == '3' && readBuffer[0] == '1')
 		{
 			for (int i = 0; i < 15; i++)
 			{
 				str = obtenirMessages(i);
 				char *outBuffer = &str[0u];
+				//31
+				//32
 				send(sd, outBuffer, strlen(outBuffer), 0);
 			}
 		}
@@ -397,4 +420,28 @@ string ecrireMessage(char *src)
 	//Port: ntohs(sinRemote.sin_port)
 	//Boost: get time
 	//Message
+	return "placerholder2";
+}
+
+Document ouvrirDocument(char* c)
+{
+	FILE* fp = fopen(c, "rb");
+	char buffer[65536];
+	FileReadStream is(fp, buffer, sizeof(buffer));
+	Document doc;
+	doc.ParseStream(is);
+	fclose(fp);
+	return doc;
+}
+
+const char *GetJsonText(Document doc)
+{
+	rapidjson::StringBuffer buffer;
+
+	buffer.Clear();
+
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+	doc.Accept(writer);
+
+	return strdup(buffer.GetString());
 }
