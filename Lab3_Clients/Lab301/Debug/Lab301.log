@@ -1,0 +1,5 @@
+﻿  Main.cpp
+c:\users\tristan\source\repos\lab4\lab3_clients\lab301\main.cpp(63): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winsock2.h(1848): note: see declaration of 'inet_ntoa'
+Main.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  Lab301.vcxproj -> C:\Users\Tristan\Source\Repos\lab4\Lab3_Clients\Debug\Lab301.exe
