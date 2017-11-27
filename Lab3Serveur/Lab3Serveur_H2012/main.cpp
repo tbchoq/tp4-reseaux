@@ -26,11 +26,11 @@ using namespace rapidjson;
 // External functions
 extern DWORD WINAPI EchoHandler(void* sd_) ;
 extern void DoSomething( char *src, char *dest );
-extern bool checkUsername(char *src);
-extern bool checkPassword(char *pass, char *user);
-extern bool createNewUser(char *pass, char *user);
+extern bool checkUsername(string user);
+extern bool checkPassword(string user, string pass);
+extern bool createNewUser(string user, string pass);
 extern string obtenirMessage(int i);
-extern string ecrireMessage(char* user, char* ip, u_short port, char *text);
+extern string ecrireMessage(string user, char* ip, u_short port, string text);
 extern const char *GetJsonText(Document doc);
 
 
@@ -194,12 +194,12 @@ int main(void)
 	setsockopt(ServerSocket, SOL_SOCKET, SO_REUSEADDR, option, sizeof(option));
 
 	string entreeIP = "";
-	while (entreeIP != "132.207.156.238")
+	while (entreeIP != "192.168.0.101")
 	{
-		printf("\nVeuillez entrer l'adresse IP du poste sur lequel le serveur sera execute (Poste present: 132.207.156.238) : ");
+		printf("\nVeuillez entrer l'adresse IP du poste sur lequel le serveur sera execute (Poste present: 192.168.0.101) : ");
 		cin >> entreeIP;
 		
-		if (entreeIP != "132.207.156.238")
+		if (entreeIP != "192.168.0.101")
 		{
 			printf("\nL'adresse IP est incorrecte. ");
 			if (entreeIP.size() != 16)
@@ -281,7 +281,7 @@ int main(void)
 		 SOCKET sd = accept(ServerSocket, (sockaddr*)&sinRemote, &nAddrSize);
         if (sd != INVALID_SOCKET) {
 
-			cout << "Connection acceptee De : " <<
+			cout << "Tentative de connection de : " <<
                     inet_ntoa(sinRemote.sin_addr) << ":" <<
                     ntohs(sinRemote.sin_port) << "." <<
                     endl;
@@ -295,6 +295,7 @@ int main(void)
            // return 1;
         }
     }
+
 }
 
 
@@ -304,107 +305,95 @@ int main(void)
 DWORD WINAPI EchoHandler(void* sd_) 
 {
 	SOCKET sd = (SOCKET)sd_;
-	sockaddr* adresse;
-	int* adrsize = new int(16);
+	sockaddr_in sinAddr;
+	int nAddrSize = sizeof(sinAddr);
 
-	char* CurrentUsername;
+	string CurrentUsername = "";
 	bool newUser = false;
 
-	char readBuffer[250];
-	char outBuffer[250];
+	char readBuffer[202];
+	char outBuffer[202];
 	// Read Data from client
 	//char *outBuffer = "";
 	int readBytes;
+	readBytes = recvfrom(sd, readBuffer, strlen(readBuffer), 0, (sockaddr*)&sinAddr, &nAddrSize);
+	char * ip = inet_ntoa(sinAddr.sin_addr);
+	u_short port = ntohs(sinAddr.sin_port);
 
+	string strIN = string(readBuffer);
+	strIN.erase(strIN.begin() + readBytes, strIN.end());
+	//string strIN = string(readBuffer);
 	string str1 = "";
 	string str2 = "";
-	readBytes = recvfrom(sd, readBuffer, strlen(readBuffer),0,adresse,adrsize);
-	struct sockaddr_in *sin = (struct sockaddr_in *) adresse;
-	char * ip = inet_ntoa(sin->sin_addr);
-	u_short port = ntohs(sin->sin_port);
 	if (readBytes > 0) {
-		cout << "Received " << readBytes << " bytes from client." << endl;
-		cout << "Received " << readBuffer << " from client." << endl;
 
 		//Username sent
-		if (readBuffer[0] == '1' && readBuffer[1] == '0')
+		if (strIN[0] == '1' && strIN[1] == '0')
 		{
-			if (checkUsername(readBuffer) == true)
+			if (checkUsername(strIN) == true)
 			{
-				CurrentUsername = readBuffer;
+				CurrentUsername = strIN;
 				newUser = false;
 				str2 = "11StepPassword";
+				cout << "Utilisateur reconnu. Demande de mot de passe existant envoye." << endl;
+				char* outBuffer = &str2[0u];
+				send(sd, outBuffer, strlen(outBuffer), 0);
 			}
 			else
 			{
-				CurrentUsername = readBuffer;
+				CurrentUsername = strIN;
 				newUser = true;
 				//autre shits / same shit cote client
 				str2 = "11StepPassword";
+				cout << "Nouvel utilisateur. Demande de nouveau mot de passe envoye." << endl;
+				char* outBuffer = &str2[0u];
+				send(sd, outBuffer, strlen(outBuffer), 0);
 			}
 		}
 		//Password received
-		else if (readBuffer[0] == '2' && readBuffer[1] == '0')
+		else if (strIN[0] == '2' && strIN[1] == '0')
 		{
 			if (newUser == false)
 			{
 				//Username: OK
-				if (checkPassword(readBuffer, CurrentUsername) == true)
+				if (checkPassword(strIN, CurrentUsername) == true)
 				{
-					//Password: Ok -> 15 Last messages -> Unlock
-					Document docMessages;
+					
+					//Password: Ok
 
-					FILE* fpRead2 = fopen("Messages.json", "rb");
-					char readBuf2[65536];
-					FileReadStream is2(fpRead2, readBuf2, sizeof(readBuf2));
-
-					if (docMessages.ParseStream(is2).HasParseError())
-						return 1;
-
-					fclose(fpRead2);
-
-					if (docMessages.MemberCount() < 15)
-					{
-						for (int i = 1; i < docMessages.MemberCount(); i++)
-						{
-							str1 = obtenirMessage(i);
-							str2 = "31" + str1;
-							char* outBuffer = &str2[0u];
-							send(sd, outBuffer, strlen(outBuffer), 0);
-						}
-						str2 = "32";
-						char* outBuffer = &str2[0u];
-						send(sd, outBuffer, strlen(outBuffer), 0);
-					}
-					else
-					{
-						for (int i = docMessages.MemberCount() - 15; i < docMessages.MemberCount(); i++)
-						{
-							str1 = obtenirMessage(i);
-							str2 = "31" + str1;
-							str2 = "31" + str1;
-							char* outBuffer = &str2[0u];
-							send(sd, outBuffer, strlen(outBuffer), 0);
-						}
-						str2 = "32";
-						char* outBuffer = &str2[0u];
-						send(sd, outBuffer, strlen(outBuffer), 0);
-					}
+					cout << "Ancien nom d'utilisateur et mot de passe correspondant. Passage des 15 derniers messages." << endl;
+					//Confirmer connexion
+					str2 = "21StepPasswordOk";
+					char* outBuffer = &str2[0u];
+					send(sd, outBuffer, strlen(outBuffer), 0);
 				}
 				else
 				{
+					cout << "Ancien nom d'utilisateur, mais mot de passe incorrect. Fin de la connexion." << endl;
+					//Annuler connexion
 					str2 = "20StepPasswordWrong";
+					char* outBuffer = &str2[0u];
+					send(sd, outBuffer, strlen(outBuffer), 0);
 				}
 			}
 			else
 			{
-				if (createNewUser(readBuffer, CurrentUsername) == false)
+				//Username: New -> CreateNewUser
+				if (createNewUser(strIN, CurrentUsername) == false)
+				{
+					cout << "Erreur dans la creation du nouvel utilisateur." << endl;
 					return 1;
+				}
+
+				//Confirmer connexion
+				cout << "Nouvel utilisateur creer et lie au mot de passe recu. Passage des 15 dernieres messages." << endl;
+				str2 = "21StepPasswordOk";
+
 			}
 
 		}
-		//Nouveau Message
-		else if (readBuffer[0] == '3' && readBuffer[0] == '1')
+		//Passage des 15 messages
+		else if (strIN[0] == '3' && strIN[1] == '0')
 		{
 			Document docMessages;
 
@@ -417,37 +406,82 @@ DWORD WINAPI EchoHandler(void* sd_)
 
 			fclose(fpRead2);
 
-			str1 = ecrireMessage(CurrentUsername, ip, port, readBuffer);
-			str2 = "31" + str1;
-			char* outBuffer = &str2[0u];
-
-			int newID = docMessages.MemberCount() + 1;
-			Value key("0" + newID, docMessages.GetAllocator());
-			Value val(outBuffer, docMessages.GetAllocator());
-			docMessages.AddMember(key, val, docMessages.GetAllocator());
-
-			FILE* fpWrite = fopen("Data.json", "wb");
-			char writeBuf[65536];
-			FileWriteStream os(fpWrite, writeBuf, sizeof(writeBuf));
-			Writer<FileWriteStream> writer(os);
-			docMessages.Accept(writer);
-
-			fclose(fpWrite);
-
-			char* outBuffer = &str2[0u];
-			send(sd, outBuffer, strlen(outBuffer), 0);
-			
+			if (docMessages.MemberCount() < 15)
+			{
+				cout << "Il y a moins de 15 messages." << endl;
+				for (int i = 1; i < docMessages.MemberCount(); i++)
+				{
+					str1 = obtenirMessage(i);
+					str2 = "30" + str1;
+					char* outBuffer = &str2[0u];
+					send(sd, outBuffer, strlen(outBuffer), 0);
+				}
+				str2 = "31";
+				char* outBuffer = &str2[0u];
+				send(sd, outBuffer, strlen(outBuffer), 0);
+			}
+			else
+			{
+				for (int i = docMessages.MemberCount() - 15; i < docMessages.MemberCount(); i++)
+				{
+					str1 = obtenirMessage(i);
+					str2 = "30" + str1;
+					char* outBuffer = &str2[0u];
+					send(sd, outBuffer, strlen(outBuffer), 0);
+				}
+				str2 = "31";
+				char* outBuffer = &str2[0u];
+				send(sd, outBuffer, strlen(outBuffer), 0);
+			}
 		}
-		//DoSomething(readBuffer, outBuffer);
+		//Nouveau Message apres connexion
+		else if (strIN[0] == '3' && strIN[1] == '1')
+		{
+			//Gestion de message vide
+			if (strIN.size() > 2)
+			{
+				Document docMessages;
 
-		//A mettre dans les cases
-		send(sd, outBuffer, strlen(outBuffer), 0);
+				FILE* fpRead2 = fopen("Messages.json", "rb");
+				char readBuf2[65536];
+				FileReadStream is2(fpRead2, readBuf2, sizeof(readBuf2));
+
+				if (docMessages.ParseStream(is2).HasParseError())
+					return 1;
+
+				fclose(fpRead2);
+
+				str1 = ecrireMessage(CurrentUsername, ip, port, strIN);
+				str2 = "32" + str1;
+				char* outBuffer = &str2[0u];
+
+				int newID = docMessages.MemberCount() + 1;
+				Value key("0" + newID, docMessages.GetAllocator());
+				Value val(outBuffer, docMessages.GetAllocator());
+				docMessages.AddMember(key, val, docMessages.GetAllocator());
+
+				FILE* fpWrite = fopen("Data.json", "wb");
+				char writeBuf[65536];
+				FileWriteStream os(fpWrite, writeBuf, sizeof(writeBuf));
+				Writer<FileWriteStream> writer(os);
+				docMessages.Accept(writer);
+
+				fclose(fpWrite);
+
+				send(sd, outBuffer, strlen(outBuffer), 0);
+			}
+			else
+			{
+				send(sd, "40", 2, 0);
+				
+			}
+		}
+		
 	}
 	else if (readBytes == SOCKET_ERROR) {
 		cout << WSAGetLastErrorMessage("Echec de la reception !") << endl;
 	}
 	closesocket(sd);
-
 	return 0;
 }
 
@@ -461,7 +495,7 @@ void DoSomething( char *src, char *dest )
 	}
 }
 
-bool checkUsername(char *src)
+bool checkUsername(string username)
 {
 	FILE* fpRead1 = fopen("Data.json", "rb");
 	char readBuf1[65536];
@@ -474,13 +508,13 @@ bool checkUsername(char *src)
 
 	fclose(fpRead1);
 
-	if (docUsers.HasMember(src) == true)
+	if (docUsers.HasMember(username.c_str()) == true)
 		return true;
 	else
 		return false;
 }
 
-bool checkPassword(char *pass, char *user)
+bool checkPassword(string user, string pass)
 {
 	FILE* fpRead1 = fopen("Data.json", "rb");
 	char readBuf1[65536];
@@ -491,15 +525,15 @@ bool checkPassword(char *pass, char *user)
 	if (docUsers.ParseStream(is1).HasParseError())
 		return false;
 
-	Value key(user, docUsers.GetAllocator());
+	Value key(user.c_str(), docUsers.GetAllocator());
 
-	if (docUsers[key] == pass)
+	if (docUsers[key] == pass.c_str())
 		return true;
 	else
 		return false;
 }
 
-bool createNewUser(char *pass, char* user)
+bool createNewUser(string user, string pass)
 {
 	FILE* fpRead1 = fopen("Data.json", "rb");
 	char readBuf1[65536];
@@ -512,8 +546,8 @@ bool createNewUser(char *pass, char* user)
 
 	fclose(fpRead1);
 
-	Value key(user, docUsers.GetAllocator());
-	Value val(pass, docUsers.GetAllocator());
+	Value key(user.c_str(), docUsers.GetAllocator());
+	Value val(pass.c_str(), docUsers.GetAllocator());
 	docUsers.AddMember(key, val, docUsers.GetAllocator());
 
 	FILE* fpWrite = fopen("Data.json", "wb");
@@ -549,7 +583,7 @@ string obtenirMessage(int i)
 	return docMessages[key].GetString();
 }
 
-string ecrireMessage(char* user, char* ip, u_short port, char *text)
+string ecrireMessage(string user, char* ip, u_short port, string text)
 {
 	char buff1[20];
 	char buff2[20];
@@ -558,10 +592,10 @@ string ecrireMessage(char* user, char* ip, u_short port, char *text)
 	strftime(buff2, 20, "%H:%M:%S", localtime(&now));
 
 	string message;
-	string temp1(user);
-	string temp2(ip);
-	string temp3(text);
-	message = "[" + temp1 + " " + temp2 + ":" + to_string(port) + " - " + buff1 + "@" + buff2 + "]:" + temp3;
+	string temp1(ip);
+	string temp2 = text;
+	temp2.erase(0, 2);
+	message = "[" + user + " " + temp1 + ":" + to_string(port) + " - " + buff1 + "@" + buff2 + "]:" + temp2;
 
 	return message;
 }

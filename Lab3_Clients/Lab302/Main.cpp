@@ -19,15 +19,16 @@ using namespace std;
 int __cdecl main(int argc, char **argv)
 {
 	WSADATA wsaData;
-	SOCKET leSocket1;// = INVALID_SOCKET;
+	SOCKET SocketEnvoi;// = INVALID_SOCKET;
 	//SOCKET leSocket2;
 	struct addrinfo *result = NULL,
 		*ptr = NULL,
 		hints;
-	char motEnvoye[250];
-	char motRecu[250];
-	char username[20];
-	char password[20];
+	char motEnvoye[220];
+	char motRecu[202];
+	string username;
+	string password;
+	bool stepConnexion = false;
 	string message;
 	int iResult;
 
@@ -39,8 +40,8 @@ int __cdecl main(int argc, char **argv)
 		return 1;
 	}
 	// On va creer le socket pour communiquer avec le serveur
-	leSocket1 = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (leSocket1 == INVALID_SOCKET) {
+	SocketEnvoi = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (SocketEnvoi == INVALID_SOCKET) {
 		printf("Erreur de socket(): %ld\n\n", WSAGetLastError());
 		freeaddrinfo(result);
 		WSACleanup();
@@ -66,15 +67,43 @@ int __cdecl main(int argc, char **argv)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;  // Protocole utilisé par le serveur
 
-	// On indique le nom et le port du serveur auquel on veut se connecter
-	//char *host = "L4708-XX";
-	//char *host = "L4708-XX.lerb.polymtl.ca";
-	//char *host = "add_IP locale";
-	//char *host = "132.207.29.XXX";
-	printf("Entrez une addresse ip entre 132.207.29.101 et 132.207.29.127.");
 	char host[16];
-	char *port = "5030";
-	gets_s(host);
+	while (string(host) != "192.168.0.101")
+	{
+		printf("\nVeuillez entrer l'adresse IP du poste sur lequel le serveur sera execute (IP Serveur actuelle: 192.168.0.101) : ");
+		cin >> host;
+
+		if (string(host) != "192.168.0.101")
+		{
+			printf("\nL'adresse IP est incorrecte. ");
+			if (strlen(host) != 16)
+				printf("L'adresse entree est de taille incorrecte. ");
+			bool charIncorrect = false;
+			for (int i = 0; i < strlen(host); i++)
+			{
+				if (host[i] == '1' || host[i] == '2' || host[i] == '3' || host[i] == '4' || host[i] == '5' || host[i] == '6'
+					|| host[i] == '7' || host[i] == '8' || host[i] == '9' || host[i] == '0' || host[i] == '.') {
+				}
+				else
+					charIncorrect = true;
+
+			}
+			if (charIncorrect == true)
+				printf("L'adresse contient des characteres incorrects. ");
+
+		}
+
+	}
+	char port[5];
+
+	while (atoi (port) < 5000 || atoi(port) > 5050)
+	{
+		printf("\nVeuillez entrer un port d'ecoute entre 5000 et 5050 : ");
+		cin >> port;
+
+		if (atoi(port) < 5000 || atoi(port) > 5050)
+			printf("\nPort incorrect.");
+	}
 
 	// getaddrinfo obtient l'adresse IP du host donné
 	iResult = getaddrinfo(host, port, &hints, &result);
@@ -108,15 +137,12 @@ int __cdecl main(int argc, char **argv)
 
 	// On va se connecter au serveur en utilisant l'adresse qui se trouve dans
 	// la variable result.
-	
-	printf("\nEntrez le le username: ");
-	cin >> username;
-	printf("\nEntrez le mot de passe: ");
-	cin >> password;
 
-	iResult = connect(leSocket1, result->ai_addr, (int)(result->ai_addrlen));
+	string str1 = "";
+	string str2 = "";
+	iResult = connect(SocketEnvoi, result->ai_addr, (int)(result->ai_addrlen));
 	if (iResult == SOCKET_ERROR) {
-		printf("Impossible de se connecter au serveur %s sur le port %s\n\n", inet_ntoa(adresse->sin_addr), port);
+		printf("Impossible de rejoindre le serveur %s sur le port %s\n\n", inet_ntoa(adresse->sin_addr), port);
 		freeaddrinfo(result);
 		WSACleanup();
 		printf("Appuyez une touche pour finir\n");
@@ -125,10 +151,15 @@ int __cdecl main(int argc, char **argv)
 	}
 	else
 	{
-		iResult = send(leSocket1, username, strlen(username), 0);
+		printf("\nEntrez votre username. Si vous etes un nouvel utilisateur, entrez votre nouveau username: ");
+		cin >> username;
+		str1 = username;
+		str2 = "10" + str1;
+		char* usernameOut = &str2[0u];
+		iResult = send(SocketEnvoi, usernameOut, strlen(usernameOut), 0);
 		if (iResult == SOCKET_ERROR) {
-			printf("Erreur du send: %d\n", WSAGetLastError());
-			closesocket(leSocket1);
+			printf("Erreur de send du username: %d\n", WSAGetLastError());
+			closesocket(SocketEnvoi);
 			WSACleanup();
 			printf("Appuyez une touche pour finir\n");
 			getchar();
@@ -136,89 +167,164 @@ int __cdecl main(int argc, char **argv)
 			return 1;
 		}
 
-		printf("Nombre d'octets envoyes : %ld\n", iResult);
+		//printf("Nombre d'octets envoyes : %ld\n", iResult);
 
 		//------------------------------
-		// Maintenant, on va recevoir l' information envoyée par le serveur
-		iResult = recv(leSocket1, motRecu, strlen(motRecu), 0);
+		// Maintenant, on va recevoir l'information envoyée par le serveur
+		iResult = recv(SocketEnvoi, motRecu, strlen(motRecu), 0);
 		if (iResult > 0) {
-			printf("Nombre d'octets recus: %d\n", iResult);
-			motRecu[iResult] = '\0';
-			printf("Le mot recu est %*s\n", iResult, motRecu);
-		}
-		else {
-			printf("Erreur de reception : %d\n", WSAGetLastError());
-		}
-	}
+			if (motRecu[0] == '1' && motRecu[1] == '1')
+			{
+				printf("\nEntrez le mot de passe: ");
+				cin >> password;
+				str1 = password;
+				str2 = "20" + str1;
+				char* passOut = &str2[0u];
+				iResult = send(SocketEnvoi, passOut, strlen(passOut), 0);
+				if (iResult == SOCKET_ERROR) {
+					printf("Erreur de send du password: %d\n", WSAGetLastError());
+					closesocket(SocketEnvoi);
+					WSACleanup();
+					printf("Appuyez une touche pour finir\n");
+					getchar();
 
-	printf("Connecte au serveur %s:%s\n\n", host, port);
-
-	//iResult = connect(leSocket2, result->ai_addr, (int)(result->ai_addrlen));
-	//if (iResult == SOCKET_ERROR) {
-	//	printf("Impossible de se connecter au serveur %s sur le port %s\n\n", inet_ntoa(adresse->sin_addr), port);
-	//	freeaddrinfo(result);
-	//	WSACleanup();
-	//	printf("Appuyez une touche pour finir\n");
-	//	getchar();
-	//	return 1;
-	//}
-	printf("Connecte au serveur %s:%s\n\n", host, port);
-
-	freeaddrinfo(result);
-
-	bool enConnexion = true;
-	while (enConnexion == true)
-	{
-		printf("\nEnvoyez un message (0Message: Authentification, 1Message: Message): ");
-		cin >> message;
-
-		if (message[0] == '0')
-		{
-		}
-
-		else if (message[0] == '1')
-		{
-			//----------------------------
-			// Demander à l'usager un mot a envoyer au serveur
-			printf("Saisir un mot de 7 lettres pour envoyer au serveur: ");
-			cin >> motEnvoye;
-
-			//-----------------------------
-			// Envoyer le mot au serveur
-			iResult = send(leSocket1, motEnvoye, 10, 0);
-			if (iResult == SOCKET_ERROR) {
-				printf("Erreur du send: %d\n", WSAGetLastError());
-				closesocket(leSocket1);
+					return 1;
+				}
+			}
+			else
+			{
+				cout << "Erreur de reception du username." << endl;
+				closesocket(SocketEnvoi);
 				WSACleanup();
 				printf("Appuyez une touche pour finir\n");
 				getchar();
 
 				return 1;
 			}
+		}
+		else {
+			printf("Erreur de reception : %d\n", WSAGetLastError());
+		}
+	}
 
-			printf("Nombre d'octets envoyes : %ld\n", iResult);
+	iResult = recv(SocketEnvoi, motRecu, strlen(motRecu), 0);
+	if (iResult > 0) {
+		printf("Authentification... %s:%s\n\n", host, port);
+		if (motRecu[0] == '2' && motRecu[1] == '1')
+		{
+			stepConnexion = true;
+			printf("Authentifie. Tentative de connection au serveur... %s:%s\n\n", host, port);
+		}
+		else if(motRecu[0] == '2' && motRecu[1] == '2')
+		{
+			stepConnexion = false;
+			printf("Erreur dans la saisie du mot de passe.\n");
 
-			//------------------------------
-			// Maintenant, on va recevoir l' information envoyée par le serveur
-			iResult = recv(leSocket1, motRecu, 10, 0);
-			if (iResult > 0) {
-				printf("Nombre d'octets recus: %d\n", iResult);
-				motRecu[iResult] = '\0';
-				printf("Le mot recu est %*s\n", iResult, motRecu);
+			closesocket(SocketEnvoi);
+			WSACleanup();
+			printf("Appuyez une touche pour finir\n");
+			getchar();
+
+			return 1;
+
+		}
+		else
+		{
+			closesocket(SocketEnvoi);
+			WSACleanup();
+			printf("Appuyez une touche pour finir\n");
+			getchar();
+
+			return 1;
+		}
+
+	}
+	else {
+		printf("Erreur de reception : %d\n", WSAGetLastError());
+	}
+	if (stepConnexion == false)
+	{
+		closesocket(SocketEnvoi);
+		WSACleanup();
+
+		printf("Appuyez une touche pour finir\n");
+		getchar();
+		return 0;
+	}
+
+	iResult = send(SocketEnvoi, "30", 2, 0);
+	if (iResult == SOCKET_ERROR) {
+		printf("Erreur de send de la requete d'historique. %d\n", WSAGetLastError());
+		closesocket(SocketEnvoi);
+		WSACleanup();
+		printf("Appuyez une touche pour finir\n");
+		getchar();
+		return 1;
+	}
+
+	bool historiqueRecu = false;
+	while (historiqueRecu == false)
+	{
+		cout << "Reception des derniers messages (Maximum 15):" << endl << endl;
+		iResult = recv(SocketEnvoi, motRecu, strlen(motRecu), 0);
+		if (iResult > 2) {
+			if (motRecu[0] == 3 && motRecu[1] == 0)
+			{
+				for (int i = 2; i < strlen(motRecu); i++) {
+					cout << motRecu[i];
+				}
+				cout << endl;
+			}
+			else if (motRecu[0] == 3 && motRecu[1] == 1)
+			{
+				historiqueRecu = true;
+				cout << endl;
 			}
 			else {
 				printf("Erreur de reception : %d\n", WSAGetLastError());
 			}
 		}
+	}	
 
-		else if (message[0] == '3')
+	freeaddrinfo(result);
+
+	//Partie synchrone -> A modifier
+	bool enConnexion = true;
+	while (enConnexion == true)
+	{
+		message = "";
+		cin >> message;
+		str2 = "31" + message;
+		char* messageOut = &str2[0u];
+		iResult = send(SocketEnvoi, messageOut, strlen(messageOut), 0);
+		if (iResult == SOCKET_ERROR) {
+			printf("Erreur de send du message. %d\n", WSAGetLastError());
+			closesocket(SocketEnvoi);
+			WSACleanup();
+			printf("Appuyez une touche pour finir\n");
+			getchar();
+			return 1;
+		}
+
+		iResult = recv(SocketEnvoi, motRecu, strlen(motRecu), 0);
+		if (iResult > 2) {
+			if (motRecu[0] == 3 && motRecu[1] == 2)
+			{
+				for (int i = 2; i < strlen(motRecu); i++) {
+					cout << motRecu[i];
+				}
+				cout << endl;
+			}
+		}
+		else if (iResult == 2 && motRecu[0] == 4 && motRecu[1] == 0)
 		{
+			cout << "Deconnexion du chatroom." << endl << endl;
 			enConnexion = false;
 		}
+
 	}
 	// cleanup
-	closesocket(leSocket1);
-	//closesocket(leSocket2);
+	closesocket(SocketEnvoi);
 	WSACleanup();
 
 	printf("Appuyez une touche pour finir\n");
