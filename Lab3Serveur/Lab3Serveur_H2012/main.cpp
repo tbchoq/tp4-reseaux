@@ -2,7 +2,10 @@
 
 #include <winsock2.h>
 #include "rapidjson/filereadstream.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/istreamwrapper.h"
 #include <cstdio>
+#include <ctime>
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
@@ -24,10 +27,10 @@ using namespace rapidjson;
 extern DWORD WINAPI EchoHandler(void* sd_) ;
 extern void DoSomething( char *src, char *dest );
 extern bool checkUsername(char *src);
-extern bool checkPassword(char *src);
-extern void createNewUser(char *src);
-extern string obtenirMessages(int i);
-extern string ecrireMessage(char *src);
+extern bool checkPassword(char *pass, char *user);
+extern bool createNewUser(char *pass, char *user);
+extern string obtenirMessage(int i);
+extern string ecrireMessage(char* user, char* ip, u_short port, char *text);
 extern const char *GetJsonText(Document doc);
 
 
@@ -145,24 +148,27 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0
 int main(void) 
 {
 
+	//string idString;
+	//string message0;
+	//for (int i = 1; i < 16; i++)
+	//{
+	//	idString = to_string(i);
+	//	message0 = "message" + idString;
+	//	Value key(idString.c_str(), docMessages.GetAllocator());
+	//	Value val(message0.c_str(), docMessages.GetAllocator());
+	//	docMessages.AddMember(key, val, docMessages.GetAllocator());
+	//}
 
-	FILE* fp = fopen("Data.json", "rb");
-	char buffer[65536];
-	FileReadStream is(fp, buffer, sizeof(buffer));
+	//FILE* fpWrite = fopen("Messages.json", "wb"); // non-Windows use "w"
+	//char writeBuf[65536];
+	//FileWriteStream os(fpWrite, writeBuf, sizeof(writeBuf));
+	//Writer<FileWriteStream> writer(os);
+	//docMessages.Accept(writer);
+
+	//fclose(fpWrite);
+
+
 	
-	const char text[] = "{\"users\": [{\"username\": \"username1\",\"password\" : \"password1\"},{\"username\": \"username2\",\"password\" : \"password2\"}]}";
-
-	Document doc;
-
-	if (doc.Parse(text).HasParseError())
-		return 1;
-	
-
-	std::cout << buffer << std::endl;
-	//std::cout << doc["User1"].GetString() << std::endl;
-
-
-	fclose(fp);
 
 	//----------------------
 	// Initialize Winsock.
@@ -298,6 +304,11 @@ int main(void)
 DWORD WINAPI EchoHandler(void* sd_) 
 {
 	SOCKET sd = (SOCKET)sd_;
+	sockaddr* adresse;
+	int* adrsize = new int(16);
+
+	char* CurrentUsername;
+	bool newUser = false;
 
 	char readBuffer[250];
 	char outBuffer[250];
@@ -305,8 +316,12 @@ DWORD WINAPI EchoHandler(void* sd_)
 	//char *outBuffer = "";
 	int readBytes;
 
-	string str = "";
-	readBytes = recv(sd, readBuffer, strlen(readBuffer), 0);
+	string str1 = "";
+	string str2 = "";
+	readBytes = recvfrom(sd, readBuffer, strlen(readBuffer),0,adresse,adrsize);
+	struct sockaddr_in *sin = (struct sockaddr_in *) adresse;
+	char * ip = inet_ntoa(sin->sin_addr);
+	u_short port = ntohs(sin->sin_port);
 	if (readBytes > 0) {
 		cout << "Received " << readBytes << " bytes from client." << endl;
 		cout << "Received " << readBuffer << " from client." << endl;
@@ -316,48 +331,113 @@ DWORD WINAPI EchoHandler(void* sd_)
 		{
 			if (checkUsername(readBuffer) == true)
 			{
-				//rajouter shit
-				str = "11StepPassword";
+				CurrentUsername = readBuffer;
+				newUser = false;
+				str2 = "11StepPassword";
 			}
 			else
 			{
+				CurrentUsername = readBuffer;
+				newUser = true;
 				//autre shits / same shit cote client
-				str = "12NewUser";
+				str2 = "11StepPassword";
 			}
 		}
-		//Password sent old user
-		else if (readBuffer[0] == '2')
+		//Password received
+		else if (readBuffer[0] == '2' && readBuffer[1] == '0')
 		{
-			//check new user (2 case)
-			if (checkPassword(readBuffer) == true)
+			if (newUser == false)
 			{
-				str = "21StepPasswordRight";
-				//OK -> 31: 15 messages
-				//15e -> 32: unlock
+				//Username: OK
+				if (checkPassword(readBuffer, CurrentUsername) == true)
+				{
+					//Password: Ok -> 15 Last messages -> Unlock
+					Document docMessages;
+
+					FILE* fpRead2 = fopen("Messages.json", "rb");
+					char readBuf2[65536];
+					FileReadStream is2(fpRead2, readBuf2, sizeof(readBuf2));
+
+					if (docMessages.ParseStream(is2).HasParseError())
+						return 1;
+
+					fclose(fpRead2);
+
+					if (docMessages.MemberCount() < 15)
+					{
+						for (int i = 1; i < docMessages.MemberCount(); i++)
+						{
+							str1 = obtenirMessage(i);
+							str2 = "31" + str1;
+							char* outBuffer = &str2[0u];
+							send(sd, outBuffer, strlen(outBuffer), 0);
+						}
+						str2 = "32";
+						char* outBuffer = &str2[0u];
+						send(sd, outBuffer, strlen(outBuffer), 0);
+					}
+					else
+					{
+						for (int i = docMessages.MemberCount() - 15; i < docMessages.MemberCount(); i++)
+						{
+							str1 = obtenirMessage(i);
+							str2 = "31" + str1;
+							str2 = "31" + str1;
+							char* outBuffer = &str2[0u];
+							send(sd, outBuffer, strlen(outBuffer), 0);
+						}
+						str2 = "32";
+						char* outBuffer = &str2[0u];
+						send(sd, outBuffer, strlen(outBuffer), 0);
+					}
+				}
+				else
+				{
+					str2 = "20StepPasswordWrong";
+				}
 			}
 			else
 			{
-				str = "20StepPasswordWrong";
+				if (createNewUser(readBuffer, CurrentUsername) == false)
+					return 1;
 			}
+
 		}
-		//Doit envoyer
+		//Nouveau Message
 		else if (readBuffer[0] == '3' && readBuffer[0] == '1')
 		{
-			for (int i = 0; i < 15; i++)
-			{
-				str = obtenirMessages(i);
-				char *outBuffer = &str[0u];
-				//31
-				//32
-				send(sd, outBuffer, strlen(outBuffer), 0);
-			}
+			Document docMessages;
+
+			FILE* fpRead2 = fopen("Messages.json", "rb");
+			char readBuf2[65536];
+			FileReadStream is2(fpRead2, readBuf2, sizeof(readBuf2));
+
+			if (docMessages.ParseStream(is2).HasParseError())
+				return 1;
+
+			fclose(fpRead2);
+
+			str1 = ecrireMessage(CurrentUsername, ip, port, readBuffer);
+			str2 = "31" + str1;
+			char* outBuffer = &str2[0u];
+
+			int newID = docMessages.MemberCount() + 1;
+			Value key("0" + newID, docMessages.GetAllocator());
+			Value val(outBuffer, docMessages.GetAllocator());
+			docMessages.AddMember(key, val, docMessages.GetAllocator());
+
+			FILE* fpWrite = fopen("Data.json", "wb");
+			char writeBuf[65536];
+			FileWriteStream os(fpWrite, writeBuf, sizeof(writeBuf));
+			Writer<FileWriteStream> writer(os);
+			docMessages.Accept(writer);
+
+			fclose(fpWrite);
+
+			char* outBuffer = &str2[0u];
+			send(sd, outBuffer, strlen(outBuffer), 0);
+			
 		}
-		//Message transmis
-		else if (readBuffer[0] == '5')
-		{
-			ecrireMessage(readBuffer);
-		}
-		char *outBuffer = &str[0u];
 		//DoSomething(readBuffer, outBuffer);
 
 		//A mettre dans les cases
@@ -383,44 +463,107 @@ void DoSomething( char *src, char *dest )
 
 bool checkUsername(char *src)
 {
-	//Json check
-	//bool verif = ;
-	//if (verif == true)
-	//	return true;
-	//else
-	//	return false;
+	FILE* fpRead1 = fopen("Data.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docUsers;
+
+	if (docUsers.ParseStream(is1).HasParseError())
+		return false;
+
+	fclose(fpRead1);
+
+	if (docUsers.HasMember(src) == true)
+		return true;
+	else
+		return false;
+}
+
+bool checkPassword(char *pass, char *user)
+{
+	FILE* fpRead1 = fopen("Data.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docUsers;
+
+	if (docUsers.ParseStream(is1).HasParseError())
+		return false;
+
+	Value key(user, docUsers.GetAllocator());
+
+	if (docUsers[key] == pass)
+		return true;
+	else
+		return false;
+}
+
+bool createNewUser(char *pass, char* user)
+{
+	FILE* fpRead1 = fopen("Data.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docUsers;
+
+	if (docUsers.ParseStream(is1).HasParseError())
+		return false;
+
+	fclose(fpRead1);
+
+	Value key(user, docUsers.GetAllocator());
+	Value val(pass, docUsers.GetAllocator());
+	docUsers.AddMember(key, val, docUsers.GetAllocator());
+
+	FILE* fpWrite = fopen("Data.json", "wb");
+	char writeBuf[65536];
+	FileWriteStream os(fpWrite, writeBuf, sizeof(writeBuf));
+	Writer<FileWriteStream> writer(os);
+	docUsers.Accept(writer);
+
+	fclose(fpWrite);
 
 	return true;
 }
 
-bool checkPassword(char *src)
+string obtenirMessage(int i)
 {
-	//Json check
-	return true;
+	Document docMessages;
+
+	FILE* fpRead2 = fopen("Messages.json", "rb");
+	char readBuf2[65536];
+	FileReadStream is2(fpRead2, readBuf2, sizeof(readBuf2));
+
+	if (docMessages.ParseStream(is2).HasParseError())
+		return "Erreur de Parse.";
+
+	fclose(fpRead2);
+
+	string index = to_string(i);
+	Value key(index.c_str(), docMessages.GetAllocator());
+
+	if (docMessages.HasMember(key) == false)
+		return "Message inexistant.";
+
+	return docMessages[key].GetString();
 }
 
-void createNewUser(char *src)
+string ecrireMessage(char* user, char* ip, u_short port, char *text)
 {
-	//src[1] buffer Username, ... src[x] buffer Password, ...
+	char buff1[20];
+	char buff2[20];
+	time_t now = time(NULL);
+	strftime(buff1, 20, "%Y-%m-%d", localtime(&now));
+	strftime(buff2, 20, "%H:%M:%S", localtime(&now));
 
-	//write json
-}
+	string message;
+	string temp1(user);
+	string temp2(ip);
+	string temp3(text);
+	message = "[" + temp1 + " " + temp2 + ":" + to_string(port) + " - " + buff1 + "@" + buff2 + "]:" + temp3;
 
-string obtenirMessages(int i)
-{
-	string placeholder;
-	placeholder = "placerholder";
-		//Json read -> i
-	return placeholder;
-}
-
-string ecrireMessage(char *src)
-{
-	//Adresse IP: inet_ntoa(sinRemote.sin_addr)
-	//Port: ntohs(sinRemote.sin_port)
-	//Boost: get time
-	//Message
-	return "placerholder2";
+	return message;
 }
 
 Document ouvrirDocument(char* c)
