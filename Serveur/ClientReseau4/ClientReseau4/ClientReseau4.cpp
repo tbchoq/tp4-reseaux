@@ -19,35 +19,35 @@
 
 
 int ValidateInput(char* ip, std::string portStr) {
-    int num;
-    int flag = 1;
-    int counter = 0;
-    bool ipOk = false;
-    int port = 0;
+	int num;
+	int flag = 1;
+	int counter = 0;
+	bool ipOk = false;
+	int port = 0;
 
-    std::istringstream ss(portStr);
-    ss >> port;
-    if (!ss.fail()) {
-        char* p = strtok(ip, ".");
+	std::istringstream ss(portStr);
+	ss >> port;
+	if (!ss.fail()) {
+		char* p = strtok(ip, ".");
 
-        while (p && flag) {
-            num = atoi(p);
+		while (p && flag) {
+			num = atoi(p);
 
-            if (num >= 0 && num <= 255 && (counter++ < 4)) {
-                flag = 1;
-                p = strtok(NULL, ".");
+			if (num >= 0 && num <= 255 && (counter++ < 4)) {
+				flag = 1;
+				p = strtok(NULL, ".");
 
-            }
-            else {
-                flag = 0;
-                break;
-            }
-        }
+			}
+			else {
+				flag = 0;
+				break;
+			}
+		}
 
-        ipOk = flag && (counter == 4);
-        return ((ipOk && port <= 5050 && port >= 5000) ? port : 0);
-    }
-    return 0;
+		ipOk = flag && (counter == 4);
+		return ((ipOk && port <= 5050 && port >= 5000) ? port : 0);
+	}
+	return 0;
 
 }
 //appends msg length to begin of msg
@@ -63,223 +63,237 @@ std::string buildString(std::string msg) {
 	 return sizeStr;
 }
 void Quitter(SOCKET leSocket) {
-    shutdown(leSocket, SD_SEND);
-    WSACleanup();
-    printf("Appuyez une touche pour finir\n");
-    getchar();
+	shutdown(leSocket, SD_SEND);
+	WSACleanup();
+	printf("Appuyez une touche pour finir\n");
+	getchar();
 
 }
 
 bool SocketFailed(SOCKET leSocket, int iResult) {
-    if (iResult == SOCKET_ERROR) {
-        printf("Erreur du send: %d\n", WSAGetLastError());
-        Quitter(leSocket);
-        return true;
-    }
-    return false;
+	if (iResult == SOCKET_ERROR) {
+		printf("Erreur du send: %d\n", WSAGetLastError());
+		Quitter(leSocket);
+		return true;
+	}
+	return false;
 }
 
 void Receive(void *leSocket) {
-    int iResult;
-    char* motRecu = new char[250];
-    while (true) {
-        iResult = recv((SOCKET)leSocket, motRecu, 250, 0);
-    }
-    printf(motRecu + '\n');
+	int iResult;
+	char* motRecu = new char[250];
+	while (true) {
+		iResult = recv((SOCKET)leSocket, motRecu, 250, 0);
+	}
+	printf(motRecu + '\n');
 }
 
 int main()
 {
 
-    WSADATA wsaData;
-    SOCKET leSocket = INVALID_SOCKET;
-    struct addrinfo *result = NULL,
-        *ptr = NULL,
-        hints;
+	WSADATA wsaData;
+	SOCKET leSocket = INVALID_SOCKET;
+	struct addrinfo *result = NULL,
+		*ptr = NULL,
+		hints;
 
-    int iResult;
+	int iResult;
 
-    // InitialisATION de Winsock
-    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (iResult != 0) {
-        printf("Erreur de WSAStartup: %d\n", iResult);
-        return 1;
-    }
-    // On va creer le socket pour communiquer avec le serveur
-    leSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (leSocket == INVALID_SOCKET) {
-        printf("Erreur de socket(): %ld\n\n", WSAGetLastError());
-        freeaddrinfo(result);
-        WSACleanup();
-        printf("Appuyez une touche pour finir\n");
-        getchar();
-        return 1;
-    }
-    //--------------------------------------------
-    // On va chercher l'adresse du serveur en utilisant la fonction getaddrinfo.
-    ZeroMemory(&hints, sizeof(hints));
-    hints.ai_family = AF_INET;        // Famille d'adresses
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;  // Protocole utilisé par le serveur
+	// InitialisATION de Winsock
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0) {
+		printf("Erreur de WSAStartup: %d\n", iResult);
+		return 1;
+	}
+  
+	leSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (leSocket == INVALID_SOCKET) {
+		printf("Erreur de socket(): %ld\n\n", WSAGetLastError());
+		freeaddrinfo(result);
+		WSACleanup();
+		printf("Appuyez une touche pour finir\n");
+		getchar();
+		return 1;
+	}
 
-                                      // On indique le nom et le port du serveur auquel on veut se connecter
-                                      //char *host = "L4708-XX";
-                                      //char *host = "L4708-XX.lerb.polymtl.ca";
-                                      //char *host = "add_IP locale";
-                                      //char *host = "132.207.29.XXX";
-    std::string entreeIP = "";
-    std::string portString = "";
-    //bool ipWrong = true;
-    int iport = 0;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_INET;        // Famille d'adresses
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP; 
+
+	std::string entreeIP = "";
+	std::string portString = "";
+	//bool ipWrong = true;
+	int iport = 0;
 
 
-    while (iport == 0)
-    {
-        printf("Entrez l'addresse ip du serveur sous format xxx.xxx.xxx.xxx, puis appuyez sur retour de ligne. \t");
-        std::cin >> entreeIP;
-        printf("Entrez le port sur lequel se connecter entre 5000 5050 puis appuyez sur retour de ligne. \t");
-        std::cin >> portString;
+	while (iport == 0)
+	{
+		printf("Entrez l'addresse ip du serveur sous format xxx.xxx.xxx.xxx, puis appuyez sur retour de ligne. \t");
+		std::cin >> entreeIP;
+		printf("Entrez le port sur lequel se connecter entre 5000 5050 puis appuyez sur retour de ligne. \t");
+		std::cin >> portString;
 
-        char *ip = new char[entreeIP.length()];
-        for (unsigned int i = 0; i < entreeIP.length(); i++) {
-            ip[i] = entreeIP[i];
-        }
-
-
-        iport = ValidateInput(ip, portString);
-
-        if (iport == 0) {
-            printf("Svp, entrez des valeurs valides");
-        }
-
-    }
-    char *host = &entreeIP[0u];
-    char *port = &portString[0u];
+		char *ip = new char[entreeIP.length()];
+		for (unsigned int i = 0; i < entreeIP.length(); i++) {
+			ip[i] = entreeIP[i];
+		}
 
 
-    // getaddrinfo obtient l'adresse IP du host donné
-    iResult = getaddrinfo(host, port, &hints, &result);
-    if (iResult != 0) {
-        printf("Erreur de getaddrinfo: %d\n", iResult);
-        WSACleanup();
-        return 1;
-    }
-    //---------------------------------------------------------------------		
-    //On parcours les adresses retournees jusqu'a trouver la premiere adresse IPV4
-    while ((result != NULL) && (result->ai_family != AF_INET))
-        result = result->ai_next;
+		iport = ValidateInput(ip, portString);
 
-    //	if ((result != NULL) &&(result->ai_family==AF_INET)) result = result->ai_next;  
+		if (iport == 0) {
+			printf("Svp, entrez des valeurs valides");
+		}
 
-    //-----------------------------------------
-    if (((result == NULL) || (result->ai_family != AF_INET))) {
-        freeaddrinfo(result);
-        printf("Impossible de recuperer la bonne adresse\n\n");
-        WSACleanup();
-        printf("Appuyez une touche pour finir\n");
-        getchar();
-        return 1;
-    }
-
-    sockaddr_in *adresse;
-    adresse = (struct sockaddr_in *) result->ai_addr;
-    //----------------------------------------------------
-    printf("Adresse trouvee pour le serveur %s : %s\n\n", host, inet_ntoa(adresse->sin_addr));
-    printf("Tentative de connexion au serveur %s avec le port %s\n\n", inet_ntoa(adresse->sin_addr), port);
+	}
+	char *host = &entreeIP[0u];
+	char *port = &portString[0u];
 
 
-    // On va se connecter au serveur en utilisant l'adresse qui se trouve dans
-    // la variable result.
-    iResult = connect(leSocket, result->ai_addr, (int)(result->ai_addrlen));
-    if (iResult == SOCKET_ERROR) {
-        printf("Impossible de se connecter au serveur %s sur le port %s\n\n", inet_ntoa(adresse->sin_addr), port);
-        freeaddrinfo(result);
-        WSACleanup();
-        printf("Appuyez une touche pour finir\n");
-        getchar();
-        return 1;
-    }
+	// getaddrinfo obtient l'adresse IP du host donné
+	iResult = getaddrinfo(host, port, &hints, &result);
+	if (iResult != 0) {
+		printf("Erreur de getaddrinfo: %d\n", iResult);
+		WSACleanup();
+		return 1;
+	}
+	//---------------------------------------------------------------------		
+	//On parcours les adresses retournees jusqu'a trouver la premiere adresse IPV4
+	while ((result != NULL) && (result->ai_family != AF_INET))
+		result = result->ai_next;
 
-    std::string username = "";
-    std::string pword = "";
-    printf("Connecte au serveur %s:%s\n\n. Pour quiter entrez \"quiter\" seul.\n", host, port);
+	//	if ((result != NULL) &&(result->ai_family==AF_INET)) result = result->ai_next;  
 
-    /////////////////////////////////////////// login
-    char *reponseServeur = new char[2];
-    do {
-        do {
-            printf("Entrez le nom d'utlilisateur\n");
-            std::cin >> username;
-            if (username.compare("quiter") == 0) {
-                Quitter(leSocket);
-                return 0;
-            }
-            printf("Entrez le mot de passe\n");
-            std::cin >> pword;
-            if (pword.compare("quiter") == 0) {
-                Quitter(leSocket);
-                return 0;
-            }
-        } while (username.length() < 1 && pword.length() < 1);
+	//-----------------------------------------
+	if (((result == NULL) || (result->ai_family != AF_INET))) {
+		freeaddrinfo(result);
+		printf("Impossible de recuperer la bonne adresse\n\n");
+		WSACleanup();
+		printf("Appuyez une touche pour finir\n");
+		getchar();
+		return 1;
+	}
 
-        char *toSendChar = new char[username.length() + 3];
-        strcpy(toSendChar, (buildString(username)).c_str());
-        //send username
-        iResult = send(leSocket, toSendChar, username.length() +3, 0);
-        //delete[] toSendChar;
-        if (SocketFailed(leSocket, iResult)) {
-            return 0;
-        }
+	sockaddr_in *adresse;
+	adresse = (struct sockaddr_in *) result->ai_addr;
+	//----------------------------------------------------
+	printf("Adresse trouvee pour le serveur %s : %s\n\n", host, inet_ntoa(adresse->sin_addr));
+	printf("Tentative de connexion au serveur %s avec le port %s\n\n", inet_ntoa(adresse->sin_addr), port);
 
-        char *toSendCharpword = new char[pword.length() + 3];
-        strcpy(toSendCharpword, (buildString(pword)).c_str());
-        //send pwrd
-        iResult = send(leSocket, toSendCharpword, pword.length()+3, 0);
-        
-        if (SocketFailed(leSocket, iResult)) {
-            return 0;
-        }
+
+	// On va se connecter au serveur en utilisant l'adresse qui se trouve dans
+	// la variable result.
+	iResult = connect(leSocket, result->ai_addr, (int)(result->ai_addrlen));
+	if (iResult == SOCKET_ERROR) {
+		printf("Impossible de se connecter au serveur %s sur le port %s\n\n", inet_ntoa(adresse->sin_addr), port);
+		freeaddrinfo(result);
+		WSACleanup();
+		printf("Appuyez une touche pour finir\n");
+		getchar();
+		return 1;
+	}
+
+	std::string username = "";
+	std::string pword = "";
+	printf("Connecte au serveur %s:%s\n\n. Pour quiter entrez \"quiter\" seul.\n", host, port);
+
+	/////////////////////////////////////////// login
+	char *reponseServeur = new char[2];
+	do {
+		do {
+			printf("Entrez le nom d'utlilisateur\n");
+			std::cin >> username;
+			if (username.compare("quiter") == 0) {
+				Quitter(leSocket);
+				return 0;
+			}
+			printf("Entrez le mot de passe\n");
+			std::cin >> pword;
+			if (pword.compare("quiter") == 0) {
+				Quitter(leSocket);
+				return 0;
+			}
+		} while (username.length() < 1 && pword.length() < 1);
+
+		char *toSendChar = new char[username.length() + 3];
+		strcpy(toSendChar, (buildString(username)).c_str());
+		//send username
+		iResult = send(leSocket, toSendChar, username.length() +3, 0);
+		//delete[] toSendChar;
+		if (SocketFailed(leSocket, iResult)) {
+			return 0;
+		}
+
+		char *toSendCharpword = new char[pword.length() + 3];
+		strcpy(toSendCharpword, (buildString(pword)).c_str());
+		//send pwrd
+		iResult = send(leSocket, toSendCharpword, pword.length()+3, 0);
+		
+		if (SocketFailed(leSocket, iResult)) {
+			return 0;
+		}
 		//delete[] toSendCharpword;
-        recv((SOCKET)leSocket, reponseServeur, 2, 0);
-        if ((reponseServeur[0] == '1' && reponseServeur[1] == '0')) {
-            printf("Le nom d'utilisateur est utilisé ou le mot de passe est invalide.");
+		recv((SOCKET)leSocket, reponseServeur, 2, 0);
+		if ((reponseServeur[0] == '1' && reponseServeur[1] == '0')) {
+			printf("Le nom d'utilisateur est utilisé ou le mot de passe est invalide.");
 
-        }
+		}
 
-    } while (reponseServeur[0] == '1' && reponseServeur[1] == '0'); //while fail
-	printf("Vous etes cnnectes.\n");
-    //_beginthreadex();                                                          //const UINT envoieLength =  + 200;
-    _beginthread(Receive, 0, (void *)leSocket);
+	} while (reponseServeur[0] == '1' && reponseServeur[1] == '0'); //while fail
 
-    std::string envoieString = "";
+	char msgReceive[200];
+	do {
 
 
-    //////////////////////////Connected
-    while (true) {
-        envoieString = "";
-        std::getline(std::cin, envoieString);
-        if (envoieString.compare("quiter") == 0) {
-            Quitter(leSocket);
-            return 0;
-        }
-        if (envoieString.length() <= 200 && envoieString.length() > 0) {
+		recv((SOCKET)leSocket, msgReceive, 200, 0);
+		if (msgReceive[0] == '9') { // fin de l'evoie des 15 msgs
+			break;
+		}
+		else {
+		
+			char lengthChar[3] = { msgReceive[0], msgReceive[1], msgReceive[2] };
+			int wordLength = atoi(lengthChar);
+			std::string strReceive = std::string(msgReceive).substr(3, wordLength);
+			std::cout << strReceive + '\n';
+		
+		}
+	} while (reponseServeur[0] == '9'); //not receive all
 
-            char *toSendChar = new char[envoieString.length() + 3];
+
+	printf("Vous etes connectes.\n");
+  
+	_beginthread(Receive, 0, (void *)leSocket);
+
+	std::string envoieString = "";
+
+
+	//////////////////////////Connected
+	while (true) {
+		envoieString = "";
+		std::getline(std::cin, envoieString);
+		if (envoieString.compare("quiter") == 0) {
+			Quitter(leSocket);
+			return 0;
+		}
+		if (envoieString.length() <= 200 && envoieString.length() > 0) {
+
+			char *toSendChar = new char[envoieString.length() + 3];
 
 			std::string temp = buildString(envoieString);
-            strcpy(toSendChar, temp.c_str());
+			strcpy(toSendChar, temp.c_str());
 
-            iResult = send(leSocket, toSendChar, temp.length(), 0);
-            if (SocketFailed(leSocket, iResult)) {
-                return 0;
-            }
-         
-        }
+			iResult = send(leSocket, toSendChar, temp.length(), 0);
+			if (SocketFailed(leSocket, iResult)) {
+				return 0;
+			}
+		 
+		}
 
-    }
+	}
 
-    ///quitter
+	///quitter
 
-    return 0;
+	return 0;
 }
 

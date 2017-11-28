@@ -149,7 +149,16 @@ static struct ErrorEntry {
 const int kNumMessages = sizeof(gaErrorList) / sizeof(ErrorEntry);
 
 
-
+//// WSAGetLastErrorMessage ////////////////////////////////////////////
+// A function similar in spirit to Unix's perror() that tacks a canned 
+// interpretation of the value of WSAGetLastError() onto the end of a
+// passed string, separated by a ": ".  Generally, you should implement
+// smarter error handling than this, but for default cases and simple
+// programs, this function is sufficient.
+//
+// This function returns a pointer to an internal static buffer, so you
+// must copy the data from this function before you call it again.  It
+// follows that this function is also not thread-safe.
 const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0)
 {
     // Build basic error string
@@ -157,7 +166,9 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0
     ostrstream outs(acErrorBuffer, sizeof(acErrorBuffer));
     outs << pcMessagePrefix << ": ";
 
-
+    // Tack appropriate canned message onto end of supplied message 
+    // prefix. Note that we do a binary search here: gaErrorList must be
+    // sorted by the error constant's value.
     ErrorEntry* pEnd = gaErrorList + kNumMessages;
     ErrorEntry Target(nErrorID ? nErrorID : WSAGetLastError());
     ErrorEntry* it = lower_bound(gaErrorList, pEnd, Target);
@@ -179,7 +190,7 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0
 std::map<string, string> users;
 std::map<SOCKET, string> usrSockets;
 std::list<SOCKET> sockets;
-
+/////////////////////////////////////////////////////////////////////////////////////StartMain
 int main(void)
 {
 
@@ -261,6 +272,16 @@ int main(void)
     service.sin_port = htons(port);
     //int retourbind = (int)
     bind(ServerSocket, (SOCKADDR*)&service, sizeof(service));
+    /*if (bind(ServerSocket, (SOCKADDR*)&service, sizeof(service)) == SOCKET_ERROR){
+    cerr << WSAGetLastErrorMessage("bind() failed.") << endl;
+    closesocket(ServerSocket);
+    WSACleanup();
+    return 1;
+    }*/
+
+    //----------------------
+    // Listen for incoming connection requests.
+    // on the created socket
 
     int listenVal = 0;
     do {
@@ -312,33 +333,19 @@ DWORD WINAPI EchoHandler(void *socket_) {
 //***************************pword check************************************//
     bool loginFailed = false;
     std::string uNameStr = "";
-    int sendResult = 0; 
-    int receiveResult = 0;
     do {
         char toSend[2] = { 1,0 };
         char uName[50];
         char pWord[50];
-        receiveResult = recv(sd, uName, 50, 0);
-        if (receiveResult == SOCKET_ERROR) {
-            printf("shutdown failed with error: %d\n", WSAGetLastError());
-            closesocket(sd);
-            WSACleanup();
-            return 1;
-        }
-        receiveResult =  recv(sd, pWord, 50, 0);
-        if (receiveResult == SOCKET_ERROR) {
-            printf("shutdown failed with error: %d\n", WSAGetLastError());
-            closesocket(sd);
-            WSACleanup();
-            return 1;
-        }
+        recv(sd, uName, 50, 0);
+        recv(sd, pWord, 50, 0);
 
 		char nomlengthChar[3] = {uName[0], uName[1], uName[2] };
 		int nomLength = atoi(nomlengthChar);
 		char wordlengthChar[3] = { pWord[0], pWord[1], pWord[2] };
 		int wordLength = atoi(nomlengthChar);
 
-        uNameStr = std::string(uName).substr(3, nomLength);
+         uNameStr = std::string(uName).substr(3, nomLength);
         std::string pWordStr = std::string(pWord).substr(3, wordLength);
 
         if (pWordStr.length() < 1 && uNameStr.length()< 1) {//les champs sont vide, fail
@@ -361,13 +368,7 @@ DWORD WINAPI EchoHandler(void *socket_) {
                 loginFailed = true;
             }
         }
-        sendResult = send(sd, toSend, 2, 0);
-        if (sendResult == SOCKET_ERROR) {
-            printf("send failed with error: %d\n", WSAGetLastError());
-            closesocket(sd);
-            WSACleanup();
-            return 1;
-        }
+        send(sd, toSend, 2, 0);
 		///////////ENVOYER LES 15 msgs à sd... on va laisser l'autre envoyer en meme temps, no time to deal
     } while (loginFailed);
 	///*************************End Pword*************************************************
@@ -387,13 +388,7 @@ DWORD WINAPI EchoHandler(void *socket_) {
                 string temp = buildString(strReceive);
                 strcpy(receive, temp.c_str());
 
-                sendResult = send(a.first, receive, 200, 0);
-                if (sendResult == SOCKET_ERROR) {
-                    printf("send failed with error: %d\n", WSAGetLastError());
-                    closesocket(a.first);
-                    WSACleanup();
-                    return 1;
-                }
+                send(a.first, receive, 200, 0);
            // }
         }
 	
