@@ -1,17 +1,5 @@
-﻿Build started 2017-11-27 8:34:22 PM.
-     1>Project "D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ServeurReseau4\ServeurReseau4\ServeurReseau4.vcxproj" on node 2 (Build target(s)).
-     1>InitializeBuildStatus:
-         Creating "Debug\ServeurReseau4.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
-       ClCompile:
-         All outputs are up-to-date.
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.11.25503\bin\HostX86\x86\CL.exe /c /I"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ServeurReseau4\packages\rapidjson.1.0.2\build\native\../..//build/native/include/" /ZI /nologo /W3 /WX- /diagnostics:classic /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CRT_SECURE_NO_WARNINGS /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Debug\ServeurReseau4.pch" /Fo"Debug\\" /Fd"Debug\vc141.pdb" /Gd /TP /analyze- /errorReport:prompt ServeurReseau4.cpp
-         ServeurReseau4.cpp
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.11.25503\bin\HostX86\x86\link.exe /ERRORREPORT:PROMPT /OUT:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.lib" /MACHINE:X86 Debug\ServeurReseau4.obj
-         Debug\stdafx.obj
-         ServeurReseau4.vcxproj -> D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.exe
-         ServeurReseau4.vcxproj -> D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.pdb (Partial PDB)
-       FinalizeBuildStatus:
-         Deleting file "Debug\ServeurReseau4.tlog\unsuccessfulbuild".
-         Touching "Debug\ServeurReseau4.tlog\ServeurReseau4.lastbuildstate".
-     1>Done Building Project "D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ServeurReseau4\ServeurReseau4\ServeurReseau4.vcxproj" (Build target(s)).
+﻿  ServeurReseau4.cpp
+c:\temp\tp4-reseaux\serveur\serveurreseau4\serveurreseau4\serveurreseau4.cpp(362): warning C4156: suppression d'une expression de tableau sans utiliser la forme 'delete' de tableau ; substituée par la forme de tableau
+c:\temp\tp4-reseaux\serveur\serveurreseau4\serveurreseau4\serveurreseau4.cpp(362): warning C4154: suppression d'une expression de tableau ; conversion en pointeur fournie
+  ServeurReseau4.vcxproj -> C:\TEMP\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.exe
+  ServeurReseau4.vcxproj -> C:\TEMP\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.pdb (Partial PDB)

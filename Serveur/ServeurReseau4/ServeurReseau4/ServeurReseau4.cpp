@@ -295,8 +295,6 @@ int main(void)
 
         sockaddr_in sinRemote;
         int nAddrSize = sizeof(sinRemote);
-        // Create a SOCKET for accepting incoming requests.
-        // Accept the connection.
 
 
         SOCKET sd = accept(ServerSocket, (sockaddr*)&sinRemote, &nAddrSize);
@@ -319,10 +317,7 @@ int main(void)
 
 DWORD WINAPI EchoHandler(void *socket_) {
     SOCKET sd = (SOCKET)socket_;
-    /*char readBuffer[250];
-    char outBuffer[250];
-    */
-    //pword check
+//***************************pword check************************************//
     bool loginFailed = false;
     do {
         char toSend[2] = { 1,0 };
@@ -333,35 +328,39 @@ DWORD WINAPI EchoHandler(void *socket_) {
 
         std::string uNameStr = std::string(uName);
         std::string pWordStr = std::string(pWord);
-        if (pWordStr.length() < 1 && uNameStr.length()< 1) {
+        if (pWordStr.length() < 1 && uNameStr.length()< 1) {//les champs sont vide, fail
             loginFailed = true;
-
         }
         else {
-            if (users.find(uNameStr) == users.end()) {
-                users.insert(std::pair<string, string>(uNameStr, pWordStr));
+            if (users.find(uNameStr) == users.end()) {  ////l'utilisateur n'est pas dans la liste "users"
+                users.insert(std::pair<string, string>(uNameStr, pWordStr)); // on l'ajoute ici et dans la bd
             }
-            else if (users[uNameStr].compare(pWordStr) == 0) {
-                toSend[1] = '1';
-                if (usrSockets.find(sd) == usrSockets.end())
-                    usrSockets.insert(std::pair<SOCKET, string>(sd, uNameStr));
-                else
-                    usrSockets[sd] = uNameStr;
+            else if (users[uNameStr].compare(pWordStr) == 0) { /// nouvel utilisateur et le mot de passe est valide 
+                toSend[1] = '1'; // msg login accepté
+				if (usrSockets.find(sd) == usrSockets.end()) {
+					usrSockets.insert(std::pair<SOCKET, string>(sd, uNameStr));//on ajoute le socket dans la map de socket/usrname (pour afficher le nom utilisateur plus tard)
+				}
+				else {
+					usrSockets[sd] = uNameStr; // on update la map si l'utilisateur/socket a changé
+				}
                 loginFailed = true;
             }
         }
         send(sd, toSend, 2, 0);
+		///////////ENVOYER LES 15 msgs à sd... on va laisser l'autre envoyer en meme temps, no time to deal
     } while (loginFailed);
-
-    char receive[200];
-    while (true) {
+	///*************************End Pword*************************************************
+	char receive[200];
+    while (true) {//on recoit à l'infini
+		
         recv(sd, receive, 200, 0);
         std::cout << (usrSockets[sd] + " " + receive + '\n');
 
-        for (auto a : sockets) {
+        for (auto a : sockets) {//redirection des messages
             send(a, receive, 200, 0);
         }
+	
 
-
-    }
+    }	
+		return 0;
 }

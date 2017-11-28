@@ -1,24 +1,3 @@
-﻿Build started 2017-11-27 8:45:28 PM.
-     1>Project "D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\ClientReseau4\ClientReseau4.vcxproj" on node 2 (Build target(s)).
-     1>InitializeBuildStatus:
-         Touching "Debug\ClientReseau4.tlog\unsuccessfulbuild".
-       ClCompile:
-         All outputs are up-to-date.
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.11.25503\bin\HostX86\x86\CL.exe /c /ZI /nologo /W3 /WX- /diagnostics:classic /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Debug\ClientReseau4.pch" /Fo"Debug\\" /Fd"Debug\vc141.pdb" /Gd /TP /analyze- /errorReport:prompt ClientReseau4.cpp
-         ClientReseau4.cpp
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.11.25503\bin\HostX86\x86\link.exe /ERRORREPORT:PROMPT /OUT:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.lib" /MACHINE:X86 Debug\ClientReseau4.obj
-         Debug\stdafx.obj
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__connect@12 referenced in function _main
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__inet_ntoa@4 referenced in function _main
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__recv@16 referenced in function "void __cdecl Receive(void *)" (?Receive@@YAXPAX@Z)
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__send@16 referenced in function _main
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__shutdown@8 referenced in function "void __cdecl Quitter(unsigned int)" (?Quitter@@YAXI@Z)
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__socket@12 referenced in function _main
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__WSAStartup@8 referenced in function _main
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__WSACleanup@0 referenced in function "void __cdecl Quitter(unsigned int)" (?Quitter@@YAXI@Z)
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__WSAGetLastError@0 referenced in function "bool __cdecl SocketFailed(unsigned int,int)" (?SocketFailed@@YA_NIH@Z)
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__getaddrinfo@16 referenced in function _main
-     1>ClientReseau4.obj : error LNK2019: unresolved external symbol __imp__freeaddrinfo@4 referenced in function _main
-     1>D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.exe : fatal error LNK1120: 11 unresolved externals
-     1>Done Building Project "D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\ClientReseau4\ClientReseau4.vcxproj" (Build target(s)) -- FAILED.
+﻿  ClientReseau4.cpp
+  ClientReseau4.vcxproj -> C:\TEMP\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.exe
+  ClientReseau4.vcxproj -> C:\TEMP\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.pdb (Partial PDB)

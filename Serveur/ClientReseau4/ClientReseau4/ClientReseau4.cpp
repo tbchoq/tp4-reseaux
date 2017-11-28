@@ -15,7 +15,7 @@
 #include <iostream>
 #include <process.h>
 
-
+#pragma comment(lib, "Ws2_32.lib")
 
 
 int ValidateInput(char* ip, std::string portStr) {
@@ -50,6 +50,7 @@ int ValidateInput(char* ip, std::string portStr) {
     return 0;
 
 }
+
 
 void Quitter(SOCKET leSocket) {
     shutdown(leSocket, SD_SEND);
@@ -212,18 +213,18 @@ int main()
         } while (username.length() < 1 && pword.length() < 1);
 
         char *toSendChar = new char[username.length() + 3];
-        strcpy_s(toSendChar, username.size(), username.c_str());
+        strcpy(toSendChar, username.c_str());
         //send username
-        iResult = send(leSocket, toSendChar, strlen(toSendChar), 0);
+        iResult = send(leSocket, toSendChar, username.length(), 0);
         delete[] toSendChar;
         if (SocketFailed(leSocket, iResult)) {
             return 0;
         }
 
         char *toSendCharpword = new char[pword.length() + 3];
-        strcpy_s(toSendCharpword, pword.length(), pword.c_str());
+        strcpy(toSendCharpword, pword.c_str());
         //send pwrd
-        iResult = send(leSocket, toSendCharpword, strlen(toSendCharpword), 0);
+        iResult = send(leSocket, toSendCharpword, pword.length(), 0);
         delete[] toSendCharpword;
         if (SocketFailed(leSocket, iResult)) {
             return 0;
@@ -235,7 +236,7 @@ int main()
         }
 
     } while (reponseServeur[0] == '1' && reponseServeur[1] == '0'); //while fail
-
+	printf("Vous etes cnnectés.\n");
     //_beginthreadex();                                                          //const UINT envoieLength =  + 200;
    // _beginthread(Receive, 0, (void *)leSocket);
 
@@ -243,7 +244,7 @@ int main()
 
 
     //////////////////////////Connected
-    while (0) {
+    while (true) {
         envoieString = "";
         std::getline(std::cin, envoieString);
         if (envoieString.compare("quiter") == 0) {
@@ -253,8 +254,8 @@ int main()
         if (envoieString.length() <= 200 && envoieString.length() > 0) {
             char *toSendChar = new char[envoieString.length() + 3];
 
-            strcpy_s(toSendChar, envoieString.length(), envoieString.c_str());
-            iResult = send(leSocket, toSendChar, strlen(toSendChar), 0);
+            strcpy(toSendChar, envoieString.c_str());
+            iResult = send(leSocket, toSendChar, envoieString.length(), 0);
             if (SocketFailed(leSocket, iResult)) {
                 return 0;
             }

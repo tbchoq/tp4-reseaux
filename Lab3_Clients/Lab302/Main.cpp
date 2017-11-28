@@ -9,46 +9,12 @@
 #include <algorithm>
 #include <strstream>
 #include <locale>
-#include <sstream>
 
 
 using namespace std;
 
 // Link avec ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
-
-int ValidateInput(char* ip, string portStr) {
-	int num;
-	int flag = 1;
-	int counter = 0;
-	bool ipOk = false;
-	int port = 0;
-
-	std::istringstream ss(portStr);
-	ss >> port;
-	if (!ss.fail()) {
-		char* p = strtok(ip, ".");
-
-		while (p && flag) {
-			num = atoi(p);
-
-			if (num >= 0 && num <= 255 && (counter++ < 4)) {
-				flag = 1;
-				p = strtok(NULL, ".");
-
-			}
-			else {
-				flag = 0;
-				break;
-			}
-		}
-
-		ipOk = flag && (counter == 4);
-		return ((ipOk && port <= 5050 && port >= 5000) ? port : 0);
-	}
-	return 0;
-
-}
 
 int __cdecl main(int argc, char **argv)
 {
@@ -101,36 +67,43 @@ int __cdecl main(int argc, char **argv)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;  // Protocole utilisé par le serveur
 
-	string entreeIP = "";
-	string portString = "";
-	//bool ipWrong = true;
-	int iport = 0;
-
-
-	while (iport == 0)
+	char host[16];
+	while (string(host) != "192.168.0.101")
 	{
-		printf("Entrez l'addresse ip du serveur sous format xxx.xxx.xxx.xxx, puis appuyez sur retour de ligne. \t");
-		std::cin >> entreeIP;
-		printf("Entrez le port sur lequel se connecter entre 5000 5050 puis appuyez sur retour de ligne. \t");
-		std::cin >> portString;
+		printf("\nVeuillez entrer l'adresse IP du poste sur lequel le serveur sera execute (IP Serveur actuelle: 192.168.0.101) : ");
+		cin >> host;
 
-		char *ip = new char[entreeIP.length()];
-		for (int i = 0; i < entreeIP.length(); i++) {
-			ip[i] = entreeIP[i];
-		}
+		if (string(host) != "192.168.0.101")
+		{
+			printf("\nL'adresse IP est incorrecte. ");
+			if (strlen(host) != 16)
+				printf("L'adresse entree est de taille incorrecte. ");
+			bool charIncorrect = false;
+			for (int i = 0; i < strlen(host); i++)
+			{
+				if (host[i] == '1' || host[i] == '2' || host[i] == '3' || host[i] == '4' || host[i] == '5' || host[i] == '6'
+					|| host[i] == '7' || host[i] == '8' || host[i] == '9' || host[i] == '0' || host[i] == '.') {
+				}
+				else
+					charIncorrect = true;
 
+			}
+			if (charIncorrect == true)
+				printf("L'adresse contient des characteres incorrects. ");
 
-		iport = ValidateInput(ip, portString);
-
-		if (iport == 0) {
-			printf("Svp, entrez des valeurs valides");
 		}
 
 	}
+	char port[5];
 
-	char *host = &entreeIP[0u];
-	char *port = &portString[0u];
+	while (atoi (port) < 5000 || atoi(port) > 5050)
+	{
+		printf("\nVeuillez entrer un port d'ecoute entre 5000 et 5050 : ");
+		cin >> port;
 
+		if (atoi(port) < 5000 || atoi(port) > 5050)
+			printf("\nPort incorrect.");
+	}
 
 	// getaddrinfo obtient l'adresse IP du host donné
 	iResult = getaddrinfo(host, port, &hints, &result);
