@@ -2,12 +2,46 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
+#include <sstream>
 
 // link with Ws2_32.lib
 #pragma comment( lib, "ws2_32.lib" )
 
 // Fonctions auxiliares
 extern void wsStartup( void );
+
+int ValidateInput(char* ip, string portStr) {
+	int num;
+	int flag = 1;
+	int counter = 0;
+	bool ipOk = false;
+	int port = 0;
+
+	std::istringstream ss(portStr);
+	ss >> port;
+	if (!ss.fail()) {
+		char* p = strtok(ip, ".");
+
+		while (p && flag) {
+			num = atoi(p);
+
+			if (num >= 0 && num <= 255 && (counter++ < 4)) {
+				flag = 1;
+				p = strtok(NULL, ".");
+
+			}
+			else {
+				flag = 0;
+				break;
+			}
+		}
+
+		ipOk = flag && (counter == 4);
+		return ((ipOk && port <= 5050 && port >= 5000) ? port : 0);
+	}
+	return 0;
+
+}
 
 int __cdecl main( void )
 {

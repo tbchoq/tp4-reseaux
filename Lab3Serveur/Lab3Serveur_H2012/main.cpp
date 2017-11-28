@@ -174,8 +174,8 @@ int ValidateInput( char* ip, string portStr) {
             }
         }
 
-        ipOk = flag && (counter == 3);
-        return (ipOk && ((port <= 5050 && port >= 5000) ? port : 0));
+        ipOk = flag && (counter == 4);
+        return ((ipOk && port <= 5050 && port >= 5000) ? port : 0);
     }
     return 0;
 
@@ -184,27 +184,7 @@ int ValidateInput( char* ip, string portStr) {
 int main(void) 
 {
 
-	//string idString;
-	//string message0;
-	//for (int i = 1; i < 16; i++)
-	//{
-	//	idString = to_string(i);
-	//	message0 = "message" + idString;
-	//	Value key(idString.c_str(), docMessages.GetAllocator());
-	//	Value val(message0.c_str(), docMessages.GetAllocator());
-	//	docMessages.AddMember(key, val, docMessages.GetAllocator());
-	//}
 
-	//FILE* fpWrite = fopen("Messages.json", "wb"); // non-Windows use "w"
-	//char writeBuf[65536];
-	//FileWriteStream os(fpWrite, writeBuf, sizeof(writeBuf));
-	//Writer<FileWriteStream> writer(os);
-	//docMessages.Accept(writer);
-
-	//fclose(fpWrite);
-
-
-	
 
 	//----------------------
 	// Initialize Winsock.
@@ -248,7 +228,7 @@ int main(void)
         }
 
        
-        int port = ValidateInput(ip, portString);
+        port = ValidateInput(ip, portString);
 
         if (port == 0) {
             printf("Svp, entrez des valeurs valides");
