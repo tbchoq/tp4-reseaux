@@ -50,8 +50,19 @@ int ValidateInput(char* ip, std::string portStr) {
     return 0;
 
 }
+//appends msg length to begin of msg
+std::string buildString(std::string msg) {
+	int size = msg.length;
+	std::string sizeStr = "";
+	if (size < 100) 
+		sizeStr = "0";
+	 if (size < 10) 
+		sizeStr.append("0");
+	 sizeStr.append(std::to_string(size));
+	 return sizeStr;
 
-
+	
+}
 void Quitter(SOCKET leSocket) {
     shutdown(leSocket, SD_SEND);
     WSACleanup();
@@ -263,8 +274,6 @@ int main()
         }
 
     }
-
-
 
     ///quitter
 

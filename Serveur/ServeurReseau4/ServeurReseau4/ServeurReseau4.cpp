@@ -183,10 +183,13 @@ std::list<SOCKET> sockets;
 /////////////////////////////////////////////////////////////////////////////////////StartMain
 int main(void)
 {
+
+	
     std::map<string, string> users;
     std::map<string, SOCKET> usrSockets;
     list<SOCKET> sockets;
-
+	list<string> messages;
+//TODO : AJOUTE LES INFO DE LA BS DANS USERS//////////////////////////////////////////////////////////////////////////////////// 
     //----------------------
     // Initialize Winsock.
     WSADATA wsaData;
@@ -334,6 +337,8 @@ DWORD WINAPI EchoHandler(void *socket_) {
         else {
             if (users.find(uNameStr) == users.end()) {  ////l'utilisateur n'est pas dans la liste "users"
                 users.insert(std::pair<string, string>(uNameStr, pWordStr)); // on l'ajoute ici et dans la bd
+				//usrSockets.insert(std::pair<SOCKET, string>(sd, uNameStr));
+				
             }
             else if (users[uNameStr].compare(pWordStr) == 0) { /// nouvel utilisateur et le mot de passe est valide 
                 toSend[1] = '1'; // msg login accepté
@@ -355,7 +360,7 @@ DWORD WINAPI EchoHandler(void *socket_) {
 		
         recv(sd, receive, 200, 0);
         std::cout << (usrSockets[sd] + " " + receive + '\n');
-
+		////////////AJOUTER LE MESSAGE AUX 15 MESAGES//////////////////////////////////////////////
         for (auto a : sockets) {//redirection des messages
             send(a, receive, 200, 0);
         }
