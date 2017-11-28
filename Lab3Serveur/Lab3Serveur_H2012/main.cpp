@@ -13,7 +13,10 @@
 #include <iostream>
 #include <algorithm>
 #include <strstream>
+#include <sstream>
 #include <locale>
+#include <string>
+
 
 
 
@@ -145,6 +148,39 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0
     return acErrorBuffer;
 }
 
+int ValidateInput( char* ip, string portStr) {
+    int num;
+    int flag = 1;
+    int counter = 0;
+    bool ipOk = false;
+    int port = 0;
+
+    std::istringstream ss(portStr);
+    ss >> port;
+    if (!ss.fail()) {
+        char* p = strtok(ip, ".");
+
+        while (p && flag) {
+            num = atoi(p);
+
+            if (num >= 0 && num <= 255 && (counter++ < 4)) {
+                flag = 1;
+                p = strtok(NULL, ".");
+
+            }
+            else {
+                flag = 0;
+                break;
+            }
+        }
+
+        ipOk = flag && (counter == 3);
+        return (ipOk && ((port <= 5050 && port >= 5000) ? port : 0));
+    }
+    return 0;
+
+}
+
 int main(void) 
 {
 
@@ -194,40 +230,30 @@ int main(void)
 	setsockopt(ServerSocket, SOL_SOCKET, SO_REUSEADDR, option, sizeof(option));
 
 	string entreeIP = "";
-	while (entreeIP != "192.168.0.101")
-	{
-		printf("\nVeuillez entrer l'adresse IP du poste sur lequel le serveur sera execute (Poste present: 192.168.0.101) : ");
-		cin >> entreeIP;
-		
-		if (entreeIP != "192.168.0.101")
-		{
-			printf("\nL'adresse IP est incorrecte. ");
-			if (entreeIP.size() != 16)
-				printf("L'adresse entree n'est pas sur 4 octets. ");
-			bool charIncorrect = false;
-			for (int i = 0; i < entreeIP.size(); i++)
-			{
-				if (entreeIP[i] == '1' || entreeIP[i] == '2' || entreeIP[i] == '3' || entreeIP[i] == '4' || entreeIP[i] == '5' || entreeIP[i] == '6' 
-					|| entreeIP[i] == '7' || entreeIP[i] == '8' || entreeIP[i] == '9' || entreeIP[i] == '0' || entreeIP[i] == '.') {}
-				else
-					charIncorrect = true;
-					
-			}
-			if (charIncorrect == true)
-				printf("L'adresse contient des characteres incorrects. ");
-					
-		}
-			
-	}
+    string portString =  "";
+    //bool ipWrong = true;
+    int port = 0;
 
-	int port = 0;
-	while (port < 5000 || port > 5050)
-	{
-		printf("\nVeuillez entrer un port d'ecoute entre 5000 et 5050 : ");
-		cin >> port;
 
-		if (port < 5000 || port > 5050)
-			printf("\nPort incorrect.");
+	while (port == 0)
+	{
+        printf("Entrez l'addresse ip du serveur sous format xxx.xxx.xxx.xxx, puis appuyez sur retour de ligne. \t");
+        std::cin >> entreeIP;
+        printf("Entrez le port sur lequel se connecter entre 5000 5050 puis appuyez sur retour de ligne. \t");
+        std::cin >> portString;
+
+        char *ip = new char[entreeIP.length()];
+        for (int i = 0; i < entreeIP.length(); i++) {
+            ip[i] = entreeIP[i];
+        }
+
+       
+        int port = ValidateInput(ip, portString);
+
+        if (port == 0) {
+            printf("Svp, entrez des valeurs valides");
+        }
+       
 	}
 
     //----------------------

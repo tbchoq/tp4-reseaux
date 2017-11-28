@@ -1,20 +1,58 @@
-﻿  main.cpp
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(202): warning C4018: '<' : incompatibilité signed/unsigned
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(149): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: voir la déclaration de 'fopen'
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(238): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(2218): note: voir la déclaration de 'gethostbyname'
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(240): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1848): note: voir la déclaration de 'inet_ntoa'
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(246): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1830): note: voir la déclaration de 'inet_addr'
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(279): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1848): note: voir la déclaration de 'inet_ntoa'
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(303): warning C4101: 'outBuffer' : variable locale non référencée
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(378): warning C4018: '<' : incompatibilité signed/unsigned
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(428): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: voir la déclaration de 'fopen'
-c:\temp\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(446): warning C4996: 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _strdup. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\string.h(538): note: voir la déclaration de 'strdup'
-  Lab3Serveur_H2012.vcxproj -> C:\TEMP\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.exe
-  Lab3Serveur_H2012.vcxproj -> C:\TEMP\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.pdb (Partial PDB)
+﻿Build started 2017-11-27 7:56:06 PM.
+     1>Project "D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\Lab3Serveur_H2012\Lab3Serveur_H2012.vcxproj" on node 2 (Build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\Lab3Serv.88A1CB67.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.11.25503\bin\HostX86\x86\CL.exe /c /I"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\packages\rapidjson.1.0.2\build\native\../..//build/native/include/" /I"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\packages\jsoncpp.0.6.0.1\build\native\../..//build/native/include/" /ZI /nologo /W3 /WX- /diagnostics:classic /Od /Oy- /D JSON_DLL_BUILD /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc141.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(161): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\string.h(439): note: see declaration of 'strtok'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(168): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\string.h(439): note: see declaration of 'strtok'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(246): warning C4018: '<': signed/unsigned mismatch
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(270): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(2218): note: see declaration of 'gethostbyname'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(272): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1848): note: see declaration of 'inet_ntoa'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(278): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1830): note: see declaration of 'inet_addr'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(311): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1848): note: see declaration of 'inet_ntoa'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(438): warning C4018: '<': signed/unsigned mismatch
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(451): warning C4018: '<': signed/unsigned mismatch
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(346): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\um\winsock2.h(1848): note: see declaration of 'inet_ntoa'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(426): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(471): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(489): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(341): warning C4101: 'outBuffer': unreferenced local variable
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(518): warning C4018: '<': signed/unsigned mismatch
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(526): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(545): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(564): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(579): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(594): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(617): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\time.h(505): note: see declaration of 'localtime'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(618): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\time.h(505): note: see declaration of 'localtime'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(631): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
+     1>d:\pc\desktop\fuuuuck\tp4-reseaux\lab3serveur\lab3serveur_h2012\main.cpp(649): warning C4996: 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _strdup. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\string.h(538): note: see declaration of 'strdup'
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.11.25503\bin\HostX86\x86\link.exe /ERRORREPORT:PROMPT /OUT:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.lib" /MACHINE:X86 Debug\main.obj
+         Lab3Serveur_H2012.vcxproj -> D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.exe
+         Lab3Serveur_H2012.vcxproj -> D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\Debug\Lab3Serveur_A2012.pdb (Partial PDB)
+       FinalizeBuildStatus:
+         Deleting file "Debug\Lab3Serv.88A1CB67.tlog\unsuccessfulbuild".
+         Touching "Debug\Lab3Serv.88A1CB67.tlog\Lab3Serveur_A2012.lastbuildstate".
+     1>Done Building Project "D:\PC\Desktop\FUUUUCK\tp4-reseaux\Lab3Serveur\Lab3Serveur_H2012\Lab3Serveur_H2012.vcxproj" (Build target(s)).
