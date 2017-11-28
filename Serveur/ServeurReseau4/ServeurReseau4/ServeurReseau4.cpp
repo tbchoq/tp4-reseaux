@@ -176,9 +176,7 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0
     return acErrorBuffer;
 }
 
-std::map<string, string> users;
-std::map<SOCKET, string> usrSockets;
-std::list<SOCKET> sockets;
+
 
 int main(void)
 {
