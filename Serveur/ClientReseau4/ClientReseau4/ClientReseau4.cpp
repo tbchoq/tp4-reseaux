@@ -258,7 +258,7 @@ int main()
 			std::cout << strReceive + '\n';
 		
 		}
-	} while (reponseServeur[0] == '9'); //not receive all
+	} while (reponseServeur[0] != '9'); //not receive all
 
 
 	printf("Vous etes connectes.\n");

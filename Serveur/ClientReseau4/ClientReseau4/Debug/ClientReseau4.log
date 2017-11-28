@@ -1,15 +1,2 @@
-﻿Build started 2017-11-28 12:45:16 AM.
-     1>Project "D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\ClientReseau4\ClientReseau4.vcxproj" on node 2 (Build target(s)).
-     1>InitializeBuildStatus:
-         Touching "Debug\ClientReseau4.tlog\unsuccessfulbuild".
-       ClCompile:
-         All outputs are up-to-date.
-         All outputs are up-to-date.
-       Link:
-         All outputs are up-to-date.
-         ClientReseau4.vcxproj -> D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.exe
-         ClientReseau4.vcxproj -> D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.pdb (Partial PDB)
-       FinalizeBuildStatus:
-         Deleting file "Debug\ClientReseau4.tlog\unsuccessfulbuild".
-         Touching "Debug\ClientReseau4.tlog\ClientReseau4.lastbuildstate".
-     1>Done Building Project "D:\PC\Desktop\FUUUUCK\tp4-reseaux\Serveur\ClientReseau4\ClientReseau4\ClientReseau4.vcxproj" (Build target(s)).
+﻿  ClientReseau4.cpp
+  ClientReseau4.vcxproj -> C:\Users\Tristan\Source\Repos\lab4\newRepo\tp4-reseaux\Serveur\ClientReseau4\Debug\ClientReseau4.exe

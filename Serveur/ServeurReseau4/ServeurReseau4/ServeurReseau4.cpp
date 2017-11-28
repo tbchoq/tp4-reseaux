@@ -3,6 +3,14 @@
 #include "stdafx.h"
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <winsock2.h>
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/filewritestream.h"
+#include <cstdio>
+#include <ctime>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <strstream>
@@ -12,14 +20,7 @@
 #include <stdlib.h>
 #include <map>
 #include <list>
-#include "rapidjson/filereadstream.h"
-#include "rapidjson/filewritestream.h"
-//#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
 
-using namespace std;
 using namespace rapidjson;
 
 // link with Ws2_32.lib
@@ -28,6 +29,14 @@ using namespace rapidjson;
 // External functions
 extern DWORD WINAPI EchoHandler(void* sd_);
 extern void DoSomething(char *src, char *dest);
+extern bool checkUsername(std::string user);
+extern bool checkPassword(std::string user, std::string pass);
+extern bool createNewUser(std::string user, std::string pass);
+extern std::string obtenirMessage(int i);
+extern std::string ecrireMessage(std::string user, char* ip, u_short port, std::string text);
+extern std::map<std::string, std::string> updateUsermap();
+extern std::list<std::string> updateMessageList();
+extern bool addMessageBD(std::string message);
 
 // List of Winsock error constants mapped to an interpretation string.
 // Note that this list must remain sorted by the error constants'
@@ -47,7 +56,7 @@ std::string buildString(std::string msg) {
 }
 
 
-int ValidateInput(char* ip, string portStr) {
+int ValidateInput(char* ip, std::string portStr) {
     int num;
     int flag = 1;
     int counter = 0;
@@ -154,13 +163,13 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0
 {
     // Build basic error string
     static char acErrorBuffer[256];
-    ostrstream outs(acErrorBuffer, sizeof(acErrorBuffer));
+    std::ostrstream outs(acErrorBuffer, sizeof(acErrorBuffer));
     outs << pcMessagePrefix << ": ";
 
 
     ErrorEntry* pEnd = gaErrorList + kNumMessages;
     ErrorEntry Target(nErrorID ? nErrorID : WSAGetLastError());
-    ErrorEntry* it = lower_bound(gaErrorList, pEnd, Target);
+    ErrorEntry* it = std::lower_bound(gaErrorList, pEnd, Target);
     if ((it != pEnd) && (it->nID == Target.nID)) {
         outs << it->pcMessage;
     }
@@ -171,28 +180,28 @@ const char* WSAGetLastErrorMessage(const char* pcMessagePrefix, int nErrorID = 0
     outs << " (" << Target.nID << ")";
 
     // Finish error message off and return it.
-    outs << ends;
+    outs << std::ends;
     acErrorBuffer[sizeof(acErrorBuffer) - 1] = '\0';
     return acErrorBuffer;
 }
 
 
-
+std::map<std::string, std::string> users;
+std::map<SOCKET, std::string> usrSockets;
+std::list<SOCKET> sockets;
+std::list<std::string> messages;
 int main(void)
 {
 
-	
-    std::map<string, string> users;
-    std::map<string, SOCKET> usrSockets;
-    list<SOCKET> sockets;
-	list<string> messages;
 //TODO : AJOUTE LES INFO DE LA BS DANS USERS//////////////////////////////////////////////////////////////////////////////////// 
+	users = updateUsermap();
+	messages = updateMessageList();
     //----------------------
     // Initialize Winsock.
     WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (iResult != NO_ERROR) {
-        cerr << "Error at WSAStartup()\n" << endl;
+        std::cerr << "Error at WSAStartup()\n" << std::endl;
         return 1;
     }
 
@@ -202,7 +211,7 @@ int main(void)
     SOCKET ServerSocket;
     ServerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (ServerSocket == INVALID_SOCKET) {
-        cerr << WSAGetLastErrorMessage("Error at socket()") << endl;
+        std::cerr << WSAGetLastErrorMessage("Error at socket()") << std::endl;
         WSACleanup();
         return 1;
     }
@@ -214,8 +223,8 @@ int main(void)
     // IP address, and port for the socket that is being bound.
 
     /////////////////////////////imput
-    string entreeIP = "";
-    string portString = "";
+    std::string entreeIP = "";
+    std::string portString = "";
     //bool ipWrong = true;
     int port = 0;
 
@@ -264,7 +273,7 @@ int main(void)
     do {
         listenVal = listen(ServerSocket, SOMAXCONN);
         if (listenVal == SOCKET_ERROR) {
-            cerr << WSAGetLastErrorMessage("Error listening on socket.") << endl;
+            std::cerr << WSAGetLastErrorMessage("Error listening on socket.") << std::endl;
             closesocket(ServerSocket);
             WSACleanup();
             return 1;
@@ -289,17 +298,17 @@ int main(void)
 
         SOCKET sd = accept(ServerSocket, (sockaddr*)&sinRemote, &nAddrSize);
         if (sd != INVALID_SOCKET) {
-            cout << "Connection acceptee De : " <<
+            std::cout << "Connection acceptee De : " <<
                 inet_ntoa(sinRemote.sin_addr) << ":" <<
                 ntohs(sinRemote.sin_port) << "." <<
-                endl;
+                std::endl;
 
             DWORD nThreadID;
             CreateThread(0, 0, EchoHandler, (void*)sd, 0, &nThreadID);
         }
         else {
-            cerr << WSAGetLastErrorMessage("Echec d'une connection.") <<
-                endl;
+            std::cerr << WSAGetLastErrorMessage("Echec d'une connection.") <<
+                std::endl;
             // return 1;
         }
     }
@@ -308,12 +317,15 @@ int main(void)
 DWORD WINAPI EchoHandler(void *socket_) {
     SOCKET sd = (SOCKET)socket_;
 //***************************pword check************************************//
+	users = updateUsermap();
+	messages = updateMessageList();
+
     bool loginFailed = false;
     std::string uNameStr = "";
     int sendResult = 0; 
     int receiveResult = 0;
     do {
-        char toSend[2] = { 1,0 };
+        char toSend[2] = { '1', '0' };
         char uName[50];
         char pWord[50];
         receiveResult = recv(sd, uName, 50, 0);
@@ -334,7 +346,7 @@ DWORD WINAPI EchoHandler(void *socket_) {
 		char nomlengthChar[3] = {uName[0], uName[1], uName[2] };
 		int nomLength = atoi(nomlengthChar);
 		char wordlengthChar[3] = { pWord[0], pWord[1], pWord[2] };
-		int wordLength = atoi(nomlengthChar);
+		int wordLength = atoi(wordlengthChar);
 
         uNameStr = std::string(uName).substr(3, nomLength);
         std::string pWordStr = std::string(pWord).substr(3, wordLength);
@@ -344,19 +356,27 @@ DWORD WINAPI EchoHandler(void *socket_) {
         }
         else {
             if (users.find(uNameStr) == users.end()) {  ////l'utilisateur n'est pas dans la liste "users"
-                users.insert(std::pair<string, string>(uNameStr, pWordStr)); // on l'ajoute ici et dans la bd
-				usrSockets.insert(std::pair<SOCKET, string>(sd, uNameStr));
+                users.insert(std::pair<std::string, std::string>(uNameStr, pWordStr)); // on l'ajoute ici et dans la bd
+				createNewUser(uNameStr, pWordStr);
+				usrSockets.insert(std::pair<SOCKET, std::string>(sd, uNameStr));
+				loginFailed = false;
+				toSend[1] = '1';
 				
             }
-            else if (users[uNameStr].compare(pWordStr) == 0) { /// nouvel utilisateur et le mot de passe est valide 
-                toSend[1] = '1'; // msg login accepté
-				if (usrSockets.find(sd) == usrSockets.end()) {
-					usrSockets.insert(std::pair<SOCKET, string>(sd, uNameStr));//on ajoute le socket dans la map de socket/usrname (pour afficher le nom utilisateur plus tard)
+			//// utilisateur trouvé
+			else { 
+				if (users[uNameStr] == pWordStr)
+				{
+					toSend[1] = '1'; // msg login accepté
+					if (usrSockets.find(sd) == usrSockets.end()) {
+						usrSockets.insert(std::pair<SOCKET, std::string>(sd, uNameStr));//on ajoute le socket dans la map de socket/usrname (pour afficher le nom utilisateur plus tard)
+					}
+					loginFailed = false;
 				}
 				else {
-					usrSockets[sd] = uNameStr; // on update la map si l'utilisateur/socket a changé
+					//usrSockets[sd] = uNameStr; // on update la map si l'utilisateur/socket a changé
+					loginFailed = true;
 				}
-                loginFailed = true;
             }
         }
         sendResult = send(sd, toSend, 2, 0);
@@ -366,26 +386,95 @@ DWORD WINAPI EchoHandler(void *socket_) {
             WSACleanup();
             return 1;
         }
-		///////////ENVOYER LES 15 msgs à sd... on va laisser l'autre envoyer en meme temps, no time to deal
     } while (loginFailed);
+
+	///////////ENVOYER LES 15 msgs à sd
+	//Si moins ou egal a 15 messages dans la BD
+	char send15[200];
+	if (messages.size() <15)
+	{
+		for (auto itr = messages.begin(); itr != messages.end(); itr++)
+		{
+			std::string temp = buildString(*itr);
+			strcpy(send15, temp.c_str());
+
+			sendResult = send(sd, send15, 200, 0);
+			if (sendResult == SOCKET_ERROR) {
+				printf("send failed with error: %d\n", WSAGetLastError());
+				closesocket(sd);
+				WSACleanup();
+				return 1;
+			}
+		}
+	}
+	//Si plus de 15 messages dans la BD
+	else
+	{
+		auto itr = messages.end();
+		for (int i = 0; i <= 15; i++)
+			itr--;
+		for (itr; itr != messages.end(); itr++)
+		{
+			std::string temp = buildString(*itr);
+			strcpy(send15, temp.c_str());
+
+			sendResult = send(sd, send15, 200, 0);
+			if (sendResult == SOCKET_ERROR) {
+				printf("send failed with error: %d\n", WSAGetLastError());
+				closesocket(sd);
+				WSACleanup();
+				return 1;
+			}
+		}
+	}
+	//Message de confirmation que les 15 messages sont envoyés
+	sendResult = send(sd, "999", 200, 0);
+	if (sendResult == SOCKET_ERROR) {
+		printf("send failed with error: %d\n", WSAGetLastError());
+		closesocket(sd);
+		WSACleanup();
+		return 1;
+	}
 	///*************************End Pword*************************************************
 	char receive[200];
     while (true) {//on recoit à l'infini
-		
-        recv(sd, receive, 200, 0);
+		users = updateUsermap();
+		messages = updateMessageList();
+
+		sockaddr_in sinAddr;
+		int nAddrSize = sizeof(sinAddr);
+
+        recvfrom(sd, receive, 200, 0, (sockaddr*)&sinAddr, &nAddrSize);
+
+		char * ip = inet_ntoa(sinAddr.sin_addr);
+		u_short port = ntohs(sinAddr.sin_port);
 
 		char lengthChar[3] = { receive[0], receive[1], receive[2] };
 		int wordLength = atoi(lengthChar);
-		string strReceive = std::string(receive).substr(3, wordLength);
-        std::cout << (usrSockets[sd] + " : " + strReceive + '\n');
+		std::string strReceive = std::string(receive).substr(1, wordLength +2);
+
+		std::string messageCompose = ecrireMessage(usrSockets[sd], ip, port, strReceive);
+
+		//Ajouter le nouveau message a la BD
+		if (addMessageBD(messageCompose) == false)
+		{
+			printf("Erreur d'ecriture du message dans la BD: %d\n", WSAGetLastError());
+			closesocket(sd);
+			WSACleanup();
+			return 1;
+		}
+
+
+        std::cout << messageCompose << '\n';
 		////////////AJOUTER LE MESSAGE AUX 15 MESAGES//////////////////////////////////////////////
         for (auto a : usrSockets) {//redirection des messages
             //if (a.second.compare( uNameStr) ==0) {} // dont self to self
             //else {
-                string temp = buildString(strReceive);
-                strcpy(receive, temp.c_str());
+                std::string temp = buildString(messageCompose);
+				char *cstr = new char[messageCompose.length() + 1];
+                strcpy(cstr, temp.c_str());
 
-                sendResult = send(a.first, receive, 200, 0);
+                sendResult = send(a.first, cstr, 200, 0);
                 if (sendResult == SOCKET_ERROR) {
                     printf("send failed with error: %d\n", WSAGetLastError());
                     closesocket(a.first);
@@ -398,4 +487,167 @@ DWORD WINAPI EchoHandler(void *socket_) {
 
     }	
 		return 0;
+}
+
+bool checkUsername(std::string username)
+{
+	FILE* fpRead1 = fopen("Data.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docUsers;
+
+	if (docUsers.ParseStream(is1).HasParseError())
+		return false;
+
+	fclose(fpRead1);
+
+	if (docUsers.HasMember(username.c_str()) == true)
+		return true;
+	else
+		return false;
+}
+
+bool checkPassword(std::string user, std::string pass)
+{
+	FILE* fpRead1 = fopen("Data.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docUsers;
+
+	if (docUsers.ParseStream(is1).HasParseError())
+		return false;
+
+	Value key(user.c_str(), docUsers.GetAllocator());
+
+	if (docUsers[key] == pass.c_str())
+		return true;
+	else
+		return false;
+}
+
+bool createNewUser(std::string user, std::string pass)
+{
+	FILE* fpRead1 = fopen("Data.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docUsers;
+
+	if (docUsers.ParseStream(is1).HasParseError())
+		return false;
+
+	fclose(fpRead1);
+
+	Value key(user.c_str(), docUsers.GetAllocator());
+	Value val(pass.c_str(), docUsers.GetAllocator());
+	docUsers.AddMember(key, val, docUsers.GetAllocator());
+
+	FILE* fpWrite = fopen("Data.json", "wb");
+	char writeBuf[65536];
+	FileWriteStream os(fpWrite, writeBuf, sizeof(writeBuf));
+	Writer<FileWriteStream> writer(os);
+	docUsers.Accept(writer);
+
+	fclose(fpWrite);
+
+	return true;
+}
+
+std::string ecrireMessage(std::string user, char* ip, u_short port, std::string text)
+{
+	char buff1[20];
+	char buff2[20];
+	time_t now = time(NULL);
+	strftime(buff1, 20, "%Y-%m-%d", localtime(&now));
+	strftime(buff2, 20, "%H:%M:%S", localtime(&now));
+
+	std::string message;
+	std::string temp1(ip);
+	std::string temp2 = text;
+	temp2.erase(0, 2);
+	message = "[" + user + " " + temp1 + ":" + std::to_string(port) + " - " + buff1 + "@" + buff2 + "]:" + temp2;
+
+	return message;
+}
+
+std::map<std::string, std::string> updateUsermap()
+{
+	FILE* fpRead1 = fopen("Data.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docUsers;
+
+	docUsers.ParseStream(is1);
+
+	fclose(fpRead1);
+
+	std::map<std::string, std::string> newUsers;
+
+
+	for (Value::ConstMemberIterator itr = docUsers.MemberBegin(); itr != docUsers.MemberEnd(); itr++)
+	{
+		std::string n = itr->name.GetString();
+		std::string v = itr->value.GetString();
+
+		newUsers.insert(std::pair<std::string,std::string>(n,v));
+	}
+
+	return newUsers;
+}
+
+std::list<std::string> updateMessageList()
+{
+	FILE* fpRead1 = fopen("Messages.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docMessages;
+
+	docMessages.ParseStream(is1);
+
+	fclose(fpRead1);
+
+	std::list<std::string> newMessages;
+
+	for (Value::MemberIterator itr = docMessages.MemberBegin(); itr != docMessages.MemberEnd(); itr++)
+	{
+		std::string v = itr->value.GetString();
+
+		newMessages.push_back(v);
+	}
+
+	return newMessages;
+}
+
+bool addMessageBD(std::string message)
+{
+	FILE* fpRead1 = fopen("Messages.json", "rb");
+	char readBuf1[65536];
+	FileReadStream is1(fpRead1, readBuf1, sizeof(readBuf1));
+
+	Document docMessages;
+
+	if (docMessages.ParseStream(is1).HasParseError())
+		return false;
+
+	fclose(fpRead1);
+
+	int index = docMessages.MemberCount() + 1;
+
+	Value key(std::to_string(index).c_str(), docMessages.GetAllocator());
+	Value val(message.c_str(), docMessages.GetAllocator());
+	docMessages.AddMember(key, val, docMessages.GetAllocator());
+
+	FILE* fpWrite = fopen("Messages.json", "wb");
+	char writeBuf[65536];
+	FileWriteStream os(fpWrite, writeBuf, sizeof(writeBuf));
+	Writer<FileWriteStream> writer(os);
+	docMessages.Accept(writer);
+
+	fclose(fpWrite);
+
+	return true;
 }

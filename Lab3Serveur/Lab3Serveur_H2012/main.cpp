@@ -183,7 +183,16 @@ int ValidateInput( char* ip, string portStr) {
 
 int main(void) 
 {
+	Document docMessages;
 
+	FILE* fpRead2 = fopen("Messages.json", "rb");
+	char readBuf2[65536];
+	FileReadStream is2(fpRead2, readBuf2, sizeof(readBuf2));
+
+	if (docMessages.ParseStream(is2).HasParseError())
+		return 1;
+
+	fclose(fpRead2);
 
 
 	//----------------------
