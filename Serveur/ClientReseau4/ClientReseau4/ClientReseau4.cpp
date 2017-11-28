@@ -52,16 +52,15 @@ int ValidateInput(char* ip, std::string portStr) {
 }
 //appends msg length to begin of msg
 std::string buildString(std::string msg) {
-	int size = msg.length;
+	int size = msg.length();
 	std::string sizeStr = "";
 	if (size < 100) 
 		sizeStr = "0";
 	 if (size < 10) 
 		sizeStr.append("0");
 	 sizeStr.append(std::to_string(size));
+	 sizeStr.append(msg);
 	 return sizeStr;
-
-	
 }
 void Quitter(SOCKET leSocket) {
     shutdown(leSocket, SD_SEND);
@@ -224,22 +223,23 @@ int main()
         } while (username.length() < 1 && pword.length() < 1);
 
         char *toSendChar = new char[username.length() + 3];
-        strcpy(toSendChar, username.c_str());
+        strcpy(toSendChar, (buildString(username)).c_str());
         //send username
-        iResult = send(leSocket, toSendChar, username.length(), 0);
-        delete[] toSendChar;
+        iResult = send(leSocket, toSendChar, username.length() +3, 0);
+        //delete[] toSendChar;
         if (SocketFailed(leSocket, iResult)) {
             return 0;
         }
 
         char *toSendCharpword = new char[pword.length() + 3];
-        strcpy(toSendCharpword, pword.c_str());
+        strcpy(toSendCharpword, (buildString(pword)).c_str());
         //send pwrd
-        iResult = send(leSocket, toSendCharpword, pword.length(), 0);
-        delete[] toSendCharpword;
+        iResult = send(leSocket, toSendCharpword, pword.length()+3, 0);
+        
         if (SocketFailed(leSocket, iResult)) {
             return 0;
         }
+		//delete[] toSendCharpword;
         recv((SOCKET)leSocket, reponseServeur, 2, 0);
         if ((reponseServeur[0] == '1' && reponseServeur[1] == '0')) {
             printf("Le nom d'utilisateur est utilisé ou le mot de passe est invalide.");
@@ -247,9 +247,9 @@ int main()
         }
 
     } while (reponseServeur[0] == '1' && reponseServeur[1] == '0'); //while fail
-	printf("Vous etes cnnectés.\n");
+	printf("Vous etes cnnectes.\n");
     //_beginthreadex();                                                          //const UINT envoieLength =  + 200;
-   // _beginthread(Receive, 0, (void *)leSocket);
+    _beginthread(Receive, 0, (void *)leSocket);
 
     std::string envoieString = "";
 
@@ -263,14 +263,17 @@ int main()
             return 0;
         }
         if (envoieString.length() <= 200 && envoieString.length() > 0) {
+
             char *toSendChar = new char[envoieString.length() + 3];
 
-            strcpy(toSendChar, envoieString.c_str());
-            iResult = send(leSocket, toSendChar, envoieString.length(), 0);
+			std::string temp = buildString(envoieString);
+            strcpy(toSendChar, temp.c_str());
+
+            iResult = send(leSocket, toSendChar, temp.length(), 0);
             if (SocketFailed(leSocket, iResult)) {
                 return 0;
             }
-            delete[] toSendChar;
+         
         }
 
     }

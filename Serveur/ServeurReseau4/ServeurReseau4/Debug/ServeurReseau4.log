@@ -1,5 +1,3 @@
 ﻿  ServeurReseau4.cpp
-c:\temp\tp4-reseaux\serveur\serveurreseau4\serveurreseau4\serveurreseau4.cpp(362): warning C4156: suppression d'une expression de tableau sans utiliser la forme 'delete' de tableau ; substituée par la forme de tableau
-c:\temp\tp4-reseaux\serveur\serveurreseau4\serveurreseau4\serveurreseau4.cpp(362): warning C4154: suppression d'une expression de tableau ; conversion en pointeur fournie
   ServeurReseau4.vcxproj -> C:\TEMP\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.exe
   ServeurReseau4.vcxproj -> C:\TEMP\tp4-reseaux\Serveur\ServeurReseau4\Debug\ServeurReseau4.pdb (Partial PDB)

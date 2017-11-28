@@ -34,7 +34,17 @@ extern void DoSomething(char *src, char *dest);
 // values, because we do a binary search on the list when looking up
 // items.
 
-
+std::string buildString(std::string msg) {
+	int size = msg.length();
+	std::string sizeStr = "";
+	if (size < 100)
+		sizeStr = "0";
+	if (size < 10)
+		sizeStr.append("0");
+	sizeStr.append(std::to_string(size));
+	sizeStr.append(msg);
+	return sizeStr;
+}
 
 
 int ValidateInput(char* ip, string portStr) {
@@ -329,15 +339,21 @@ DWORD WINAPI EchoHandler(void *socket_) {
         recv(sd, uName, 50, 0);
         recv(sd, pWord, 50, 0);
 
-        std::string uNameStr = std::string(uName);
-        std::string pWordStr = std::string(pWord);
+		char nomlengthChar[3] = {uName[0], uName[1], uName[2] };
+		int nomLength = atoi(nomlengthChar);
+		char wordlengthChar[3] = { pWord[0], pWord[1], pWord[2] };
+		int wordLength = atoi(nomlengthChar);
+
+        std::string uNameStr = std::string(uName).substr(3, nomLength);
+        std::string pWordStr = std::string(pWord).substr(3, wordLength);
+
         if (pWordStr.length() < 1 && uNameStr.length()< 1) {//les champs sont vide, fail
             loginFailed = true;
         }
         else {
             if (users.find(uNameStr) == users.end()) {  ////l'utilisateur n'est pas dans la liste "users"
                 users.insert(std::pair<string, string>(uNameStr, pWordStr)); // on l'ajoute ici et dans la bd
-				//usrSockets.insert(std::pair<SOCKET, string>(sd, uNameStr));
+				usrSockets.insert(std::pair<SOCKET, string>(sd, uNameStr));
 				
             }
             else if (users[uNameStr].compare(pWordStr) == 0) { /// nouvel utilisateur et le mot de passe est valide 
@@ -359,9 +375,16 @@ DWORD WINAPI EchoHandler(void *socket_) {
     while (true) {//on recoit à l'infini
 		
         recv(sd, receive, 200, 0);
-        std::cout << (usrSockets[sd] + " " + receive + '\n');
+
+		char lengthChar[3] = { receive[0], receive[1], receive[2] };
+		int wordLength = atoi(lengthChar);
+		string strReceive = std::string(receive).substr(3, wordLength);
+        std::cout << (usrSockets[sd] + " : " + strReceive + '\n');
 		////////////AJOUTER LE MESSAGE AUX 15 MESAGES//////////////////////////////////////////////
         for (auto a : sockets) {//redirection des messages
+			string temp = buildString(strReceive);
+			strcpy(receive, temp.c_str());
+			
             send(a, receive, 200, 0);
         }
 	
